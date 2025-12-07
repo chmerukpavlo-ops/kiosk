@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: kiosk-backend
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install && npm run build
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false  # Встановіть вручну з Internal Database URL
+      - key: JWT_SECRET
+        sync: false  # Встановіть вручну (складний пароль)
+
+databases:
+  - name: kiosk-db
+    plan: free
+    databaseName: kiosk_db
+    user: kiosk_user
+

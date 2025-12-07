@@ -1,0 +1,13 @@
+node_modules
+.env
+*.log
+.git
+.gitignore
+README.md
+*.md
+!README.md
+.vscode
+.idea
+backend
+render.yaml
+
