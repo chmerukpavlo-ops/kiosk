@@ -86,8 +86,9 @@ git push -u origin main
 3. Налаштування:
    - **Framework Preset:** Vite (він зазвичай сам вгадає)
    - **Root Directory:** Натисни **"Edit"** і вибери папку **`frontend`** ⚠️ **ВАЖЛИВО!**
-   - **Build Command:** `npm run build` (або залиш як є)
-   - **Output Directory:** `dist` (або залиш як є)
+   - **Build Command:** `npm run build` (або залиш як є - vercel.json вже налаштований)
+   - **Output Directory:** `dist` (або залиш як є - vercel.json вже налаштований)
+   - **Install Command:** `npm install` (або залиш як є)
 4. Прокрути вниз до **"Environment Variables"** і додай:
    - **Name:** `VITE_API_URL`
    - **Value:** Встав посилання на твій бекенд з Render (те, що копіював вище)
