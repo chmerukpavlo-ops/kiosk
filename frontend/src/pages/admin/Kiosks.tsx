@@ -145,7 +145,7 @@ export function Kiosks() {
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Виручка:</span>
                     <span className="font-semibold text-green-600">
-                      {parseFloat(kiosk.stats.sales?.total_revenue || 0).toFixed(2)} ₴
+                      {parseFloat(String(kiosk.stats.sales?.total_revenue || 0)).toFixed(2)} ₴
                     </span>
                   </div>
                 </div>
@@ -262,7 +262,7 @@ export function Kiosks() {
                       <div className="p-3 bg-gray-50 rounded">
                         <div className="text-sm text-gray-600">Виручка</div>
                         <div className="text-xl font-bold text-green-600">
-                          {parseFloat(selectedKiosk.stats.sales?.total_revenue || 0).toFixed(2)} ₴
+                          {parseFloat(String(selectedKiosk.stats.sales?.total_revenue || 0)).toFixed(2)} ₴
                         </div>
                       </div>
                     </div>

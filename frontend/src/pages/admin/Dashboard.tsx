@@ -165,7 +165,7 @@ export function AdminDashboard() {
                 </div>
                 <div className="text-right">
                   <div className="font-semibold text-green-600">
-                    {parseFloat(seller.commission || 0).toFixed(2)} ₴
+                    {parseFloat(String(seller.commission || 0)).toFixed(2)} ₴
                   </div>
                   <div className="text-xs text-gray-500">комісія</div>
                 </div>
@@ -195,7 +195,7 @@ export function AdminDashboard() {
                   <td>{product.brand || '-'}</td>
                   <td>{product.sales_count}</td>
                   <td className="font-semibold text-green-600">
-                    {parseFloat(product.revenue || 0).toFixed(2)} ₴
+                    {parseFloat(String(product.revenue || 0)).toFixed(2)} ₴
                   </td>
                 </tr>
               ))}

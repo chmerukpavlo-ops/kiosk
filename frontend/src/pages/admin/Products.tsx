@@ -212,7 +212,7 @@ export function Products() {
                     <td>{product.type || '-'}</td>
                     <td>{product.kiosk_name || '-'}</td>
                     <td>{product.quantity}</td>
-                    <td className="font-semibold">{parseFloat(product.price || 0).toFixed(2)} ₴</td>
+                    <td className="font-semibold">{parseFloat(String(product.price || 0)).toFixed(2)} ₴</td>
                     <td>
                       <span
                         className={`px-2 py-1 rounded text-xs ${

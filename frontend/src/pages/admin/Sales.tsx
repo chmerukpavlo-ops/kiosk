@@ -91,8 +91,8 @@ export function Sales() {
       sale.seller_name || '-',
       sale.kiosk_name || '-',
       sale.created_at ? format(new Date(sale.created_at), 'dd.MM.yyyy HH:mm', { locale: uk }) : '-',
-      parseFloat(sale.price || 0).toFixed(2),
-      parseFloat(sale.commission || 0).toFixed(2),
+      parseFloat(String(sale.price || 0)).toFixed(2),
+      parseFloat(String(sale.commission || 0)).toFixed(2),
     ]);
 
     const csv = [headers, ...rows].map((row) => row.join(',')).join('\n');
