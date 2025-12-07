@@ -5,7 +5,7 @@ import { authenticate, requireAdmin } from '../middleware/auth.js';
 const router = express.Router();
 
 // Get all kiosks
-router.get('/', authenticate, async (req, res) => {
+router.get('/', authenticate, async (req: express.Request, res: express.Response) => {
   try {
     const result = await query('SELECT * FROM kiosks ORDER BY name');
     res.json(result.rows);
@@ -16,7 +16,7 @@ router.get('/', authenticate, async (req, res) => {
 });
 
 // Get single kiosk with stats
-router.get('/:id', authenticate, async (req, res) => {
+router.get('/:id', authenticate, async (req: express.Request, res: express.Response) => {
   try {
     const kioskResult = await query('SELECT * FROM kiosks WHERE id = $1', [req.params.id]);
     
@@ -63,7 +63,7 @@ router.get('/:id', authenticate, async (req, res) => {
 });
 
 // Create kiosk (admin only)
-router.post('/', authenticate, requireAdmin, async (req, res) => {
+router.post('/', authenticate, requireAdmin, async (req: express.Request, res: express.Response) => {
   try {
     const { name, address } = req.body;
 
@@ -84,7 +84,7 @@ router.post('/', authenticate, requireAdmin, async (req, res) => {
 });
 
 // Update kiosk (admin only)
-router.put('/:id', authenticate, requireAdmin, async (req, res) => {
+router.put('/:id', authenticate, requireAdmin, async (req: express.Request, res: express.Response) => {
   try {
     const { name, address } = req.body;
 
@@ -105,7 +105,7 @@ router.put('/:id', authenticate, requireAdmin, async (req, res) => {
 });
 
 // Delete kiosk (admin only)
-router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
+router.delete('/:id', authenticate, requireAdmin, async (req: express.Request, res: express.Response) => {
   try {
     const result = await query('DELETE FROM kiosks WHERE id = $1 RETURNING id', [req.params.id]);
 
@@ -121,7 +121,7 @@ router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
 });
 
 // Get kiosk sales
-router.get('/:id/sales', authenticate, async (req, res) => {
+router.get('/:id/sales', authenticate, async (req: express.Request, res: express.Response) => {
   try {
     const { startDate, endDate } = req.query;
 
@@ -152,7 +152,7 @@ router.get('/:id/sales', authenticate, async (req, res) => {
 });
 
 // Get kiosk products
-router.get('/:id/products', authenticate, async (req, res) => {
+router.get('/:id/products', authenticate, async (req: express.Request, res: express.Response) => {
   try {
     const result = await query(
       'SELECT * FROM products WHERE kiosk_id = $1 ORDER BY name',

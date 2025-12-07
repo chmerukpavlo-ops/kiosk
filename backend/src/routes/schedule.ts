@@ -65,7 +65,7 @@ router.get('/', authenticate, async (req: AuthRequest, res) => {
 });
 
 // Create schedule entry (admin only)
-router.post('/', authenticate, requireAdmin, async (req, res) => {
+router.post('/', authenticate, requireAdmin, async (req: express.Request, res: express.Response) => {
   try {
     const { employee_id, kiosk_id, date, shift_start, shift_end, status } = req.body;
 
@@ -88,7 +88,7 @@ router.post('/', authenticate, requireAdmin, async (req, res) => {
 });
 
 // Update schedule (admin or employee for status)
-router.put('/:id', authenticate, async (req: AuthRequest, res) => {
+router.put('/:id', authenticate, async (req: AuthRequest, res: express.Response) => {
   try {
     const { shift_start, shift_end, status } = req.body;
     const isAdmin = req.user?.role === 'admin';
@@ -145,7 +145,7 @@ router.put('/:id', authenticate, async (req: AuthRequest, res) => {
 });
 
 // Delete schedule entry (admin only)
-router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
+router.delete('/:id', authenticate, requireAdmin, async (req: express.Request, res: express.Response) => {
   try {
     const result = await query('DELETE FROM schedule WHERE id = $1 RETURNING id', [req.params.id]);
 

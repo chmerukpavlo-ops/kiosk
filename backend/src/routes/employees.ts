@@ -6,7 +6,7 @@ import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth.js';
 const router = express.Router();
 
 // Get all employees
-router.get('/', authenticate, requireAdmin, async (req, res) => {
+router.get('/', authenticate, requireAdmin, async (req: express.Request, res: express.Response) => {
   try {
     const result = await query(
       `SELECT u.id, u.username, u.full_name, u.role, u.kiosk_id, k.name as kiosk_name,
@@ -25,7 +25,7 @@ router.get('/', authenticate, requireAdmin, async (req, res) => {
 });
 
 // Get single employee with stats
-router.get('/:id', authenticate, async (req: AuthRequest, res) => {
+router.get('/:id', authenticate, async (req: AuthRequest, res: express.Response) => {
   try {
     const isAdmin = req.user?.role === 'admin';
     const userId = req.user?.id;
@@ -94,7 +94,7 @@ router.get('/:id', authenticate, async (req: AuthRequest, res) => {
 });
 
 // Create employee (admin only)
-router.post('/', authenticate, requireAdmin, async (req, res) => {
+router.post('/', authenticate, requireAdmin, async (req: express.Request, res: express.Response) => {
   try {
     const { username, password, full_name, kiosk_id } = req.body;
 
@@ -123,7 +123,7 @@ router.post('/', authenticate, requireAdmin, async (req, res) => {
 });
 
 // Update employee (admin only)
-router.put('/:id', authenticate, requireAdmin, async (req, res) => {
+router.put('/:id', authenticate, requireAdmin, async (req: express.Request, res: express.Response) => {
   try {
     const { username, password, full_name, kiosk_id } = req.body;
 
@@ -182,7 +182,7 @@ router.put('/:id', authenticate, requireAdmin, async (req, res) => {
 });
 
 // Delete employee (admin only)
-router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
+router.delete('/:id', authenticate, requireAdmin, async (req: express.Request, res: express.Response) => {
   try {
     const result = await query('DELETE FROM users WHERE id = $1 AND role = $2 RETURNING id', [req.params.id, 'seller']);
 

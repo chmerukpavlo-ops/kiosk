@@ -5,7 +5,7 @@ import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth.js';
 const router = express.Router();
 
 // Get dashboard stats (admin)
-router.get('/dashboard', authenticate, requireAdmin, async (req, res) => {
+router.get('/dashboard', authenticate, requireAdmin, async (req: express.Request, res: express.Response) => {
   try {
     // Total products quantity
     const productsResult = await query('SELECT SUM(quantity) as total_quantity FROM products');
@@ -104,7 +104,7 @@ router.get('/dashboard', authenticate, requireAdmin, async (req, res) => {
 });
 
 // Get seller dashboard stats
-router.get('/seller', authenticate, async (req: AuthRequest, res) => {
+router.get('/seller', authenticate, async (req: AuthRequest, res: express.Response) => {
   try {
     const userId = req.user!.id;
     const kioskId = req.user!.kiosk_id;

@@ -5,7 +5,7 @@ import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth.js';
 const router = express.Router();
 
 // Get all products (with filters)
-router.get('/', authenticate, async (req: AuthRequest, res) => {
+router.get('/', authenticate, async (req: AuthRequest, res: express.Response) => {
   try {
     const { brand, type, minPrice, maxPrice, minQuantity, kiosk_id, search, status } = req.query;
     const isAdmin = req.user?.role === 'admin';
@@ -79,7 +79,7 @@ router.get('/', authenticate, async (req: AuthRequest, res) => {
 });
 
 // Get single product
-router.get('/:id', authenticate, async (req, res) => {
+router.get('/:id', authenticate, async (req: express.Request, res: express.Response) => {
   try {
     const result = await query(
       'SELECT p.*, k.name as kiosk_name FROM products p LEFT JOIN kiosks k ON p.kiosk_id = k.id WHERE p.id = $1',
@@ -98,7 +98,7 @@ router.get('/:id', authenticate, async (req, res) => {
 });
 
 // Create product (admin only)
-router.post('/', authenticate, requireAdmin, async (req, res) => {
+router.post('/', authenticate, requireAdmin, async (req: express.Request, res: express.Response) => {
   try {
     const { name, brand, type, price, quantity, kiosk_id, status } = req.body;
 
@@ -121,7 +121,7 @@ router.post('/', authenticate, requireAdmin, async (req, res) => {
 });
 
 // Update product (admin only)
-router.put('/:id', authenticate, requireAdmin, async (req, res) => {
+router.put('/:id', authenticate, requireAdmin, async (req: express.Request, res: express.Response) => {
   try {
     const { name, brand, type, price, quantity, kiosk_id, status } = req.body;
 
@@ -152,7 +152,7 @@ router.put('/:id', authenticate, requireAdmin, async (req, res) => {
 });
 
 // Delete product (admin only)
-router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
+router.delete('/:id', authenticate, requireAdmin, async (req: express.Request, res: express.Response) => {
   try {
     const result = await query('DELETE FROM products WHERE id = $1 RETURNING id', [req.params.id]);
 

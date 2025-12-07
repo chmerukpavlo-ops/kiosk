@@ -5,7 +5,7 @@ import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth.js';
 const router = express.Router();
 
 // Get all sales
-router.get('/', authenticate, async (req: AuthRequest, res) => {
+router.get('/', authenticate, async (req: AuthRequest, res: express.Response) => {
   try {
     const { date, seller_id, kiosk_id, startDate, endDate } = req.query;
     const isAdmin = req.user?.role === 'admin';
@@ -67,7 +67,7 @@ router.get('/', authenticate, async (req: AuthRequest, res) => {
 });
 
 // Create sale (sell product)
-router.post('/', authenticate, async (req: AuthRequest, res) => {
+router.post('/', authenticate, async (req: AuthRequest, res: express.Response) => {
   try {
     const { product_id, quantity = 1 } = req.body;
     const seller_id = req.user!.id;
@@ -158,7 +158,7 @@ router.post('/', authenticate, async (req: AuthRequest, res) => {
 });
 
 // Get sales statistics
-router.get('/stats', authenticate, async (req: AuthRequest, res) => {
+router.get('/stats', authenticate, async (req: AuthRequest, res: express.Response) => {
   try {
     const { period = 'day', kiosk_id, seller_id } = req.query;
     const isAdmin = req.user?.role === 'admin';

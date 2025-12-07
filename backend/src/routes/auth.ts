@@ -7,7 +7,7 @@ import { authenticate, AuthRequest } from '../middleware/auth.js';
 const router = express.Router();
 
 // Login
-router.post('/login', async (req, res) => {
+router.post('/login', async (req: express.Request, res: express.Response) => {
   try {
     const { username, password } = req.body;
 
@@ -59,7 +59,7 @@ router.post('/login', async (req, res) => {
 });
 
 // Get current user
-router.get('/me', authenticate, async (req: AuthRequest, res) => {
+router.get('/me', authenticate, async (req: AuthRequest, res: express.Response) => {
   try {
     const result = await query(
       'SELECT id, username, full_name, role, kiosk_id FROM users WHERE id = $1',
