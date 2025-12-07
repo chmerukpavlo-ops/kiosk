@@ -153,7 +153,7 @@ export function Kiosks() {
 
               <div className="flex space-x-2">
                 <Link
-                  to={`/sales?kiosk_id=${kiosk.id}`}
+                  to={`/sales?kiosk_id=${String(kiosk.id)}`}
                   className="btn btn-secondary text-sm flex-1 text-center"
                 >
                   Продажі

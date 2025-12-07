@@ -61,8 +61,8 @@ export function Sales() {
       const params = new URLSearchParams();
       if (filters.startDate) params.append('startDate', filters.startDate);
       if (filters.endDate) params.append('endDate', filters.endDate);
-      if (filters.seller_id) params.append('seller_id', filters.seller_id);
-      if (filters.kiosk_id) params.append('kiosk_id', filters.kiosk_id);
+      if (filters.seller_id) params.append('seller_id', String(filters.seller_id));
+      if (filters.kiosk_id) params.append('kiosk_id', String(filters.kiosk_id));
 
       const response = await api.get(`/sales?${params.toString()}`);
       setSales(response.data || []);
@@ -86,7 +86,7 @@ export function Sales() {
     
     const headers = ['ID', 'Товар', 'Продавець', 'Ларьок', 'Час', 'Сума', 'Комісія'];
     const rows = sales.map((sale) => [
-      sale.id,
+      String(sale.id),
       sale.product_name || '-',
       sale.seller_name || '-',
       sale.kiosk_name || '-',
@@ -103,8 +103,8 @@ export function Sales() {
     link.click();
   };
 
-  const totalRevenue = sales.reduce((sum, sale) => sum + (parseFloat(sale.price) || 0), 0);
-  const totalCommission = sales.reduce((sum, sale) => sum + (parseFloat(sale.commission) || 0), 0);
+  const totalRevenue = sales.reduce((sum, sale) => sum + (parseFloat(String(sale.price || 0)) || 0), 0);
+  const totalCommission = sales.reduce((sum, sale) => sum + (parseFloat(String(sale.commission || 0)) || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -145,7 +145,7 @@ export function Sales() {
             >
               <option value="">Всі продавці</option>
               {employees.map((emp) => (
-                <option key={emp.id} value={emp.id}>
+                <option key={emp.id} value={String(emp.id)}>
                   {emp.full_name}
                 </option>
               ))}
@@ -160,7 +160,7 @@ export function Sales() {
             >
               <option value="">Всі ларьки</option>
               {kiosks.map((kiosk) => (
-                <option key={kiosk.id} value={kiosk.id}>
+                <option key={kiosk.id} value={String(kiosk.id)}>
                   {kiosk.name}
                 </option>
               ))}
@@ -221,9 +221,9 @@ export function Sales() {
                       {sale.created_at ? format(new Date(sale.created_at), 'dd.MM.yyyy HH:mm', { locale: uk }) : '-'}
                     </td>
                     <td className="font-semibold text-green-600">
-                      {parseFloat(sale.price || 0).toFixed(2)} ₴
+                      {parseFloat(String(sale.price || 0)).toFixed(2)} ₴
                     </td>
-                    <td className="text-purple-600">{parseFloat(sale.commission || 0).toFixed(2)} ₴</td>
+                    <td className="text-purple-600">{parseFloat(String(sale.commission || 0)).toFixed(2)} ₴</td>
                     </tr>
                   ))
                 )}

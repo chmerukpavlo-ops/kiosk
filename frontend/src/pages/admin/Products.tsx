@@ -48,7 +48,7 @@ export function Products() {
       if (filters.search) params.append('search', filters.search);
       if (filters.brand) params.append('brand', filters.brand);
       if (filters.type) params.append('type', filters.type);
-      if (filters.kiosk_id) params.append('kiosk_id', filters.kiosk_id);
+      if (filters.kiosk_id) params.append('kiosk_id', String(filters.kiosk_id));
       if (filters.status) params.append('status', filters.status);
 
       const response = await api.get(`/products?${params.toString()}`);
@@ -161,7 +161,7 @@ export function Products() {
           >
             <option value="">Всі ларьки</option>
             {kiosks.map((kiosk) => (
-              <option key={kiosk.id} value={kiosk.id}>
+              <option key={kiosk.id} value={String(kiosk.id)}>
                 {kiosk.name}
               </option>
             ))}
@@ -311,7 +311,7 @@ export function Products() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Ларьок *</label>
-                <select name="kiosk_id" defaultValue={editingProduct?.kiosk_id} className="input" required>
+                <select name="kiosk_id" defaultValue={editingProduct?.kiosk_id ? String(editingProduct.kiosk_id) : ''} className="input" required>
                   <option value="">Виберіть ларьок</option>
                   {kiosks.map((kiosk) => (
                     <option key={kiosk.id} value={kiosk.id}>

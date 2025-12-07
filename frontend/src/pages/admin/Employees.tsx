@@ -129,7 +129,7 @@ export function Employees() {
                     <td>
                       <div className="flex space-x-2">
                         <Link
-                          to={`/sales?seller_id=${employee.id}`}
+                          to={`/sales?seller_id=${String(employee.id)}`}
                           className="text-primary-600 hover:text-primary-700 text-sm"
                         >
                           Статистика
@@ -207,7 +207,7 @@ export function Employees() {
                 >
                   <option value="">Не призначено</option>
                   {kiosks.map((kiosk) => (
-                    <option key={kiosk.id} value={kiosk.id}>
+                    <option key={kiosk.id} value={String(kiosk.id)}>
                       {kiosk.name}
                     </option>
                   ))}

@@ -268,7 +268,7 @@ export function Schedule() {
                 <select name="employee_id" className="input" required>
                   <option value="">Виберіть продавця</option>
                   {employees.map((emp) => (
-                    <option key={emp.id} value={emp.id}>
+                    <option key={emp.id} value={String(emp.id)}>
                       {emp.full_name}
                     </option>
                   ))}
@@ -279,7 +279,7 @@ export function Schedule() {
                 <select name="kiosk_id" className="input" required>
                   <option value="">Виберіть ларьок</option>
                   {kiosks.map((kiosk) => (
-                    <option key={kiosk.id} value={kiosk.id}>
+                    <option key={kiosk.id} value={String(kiosk.id)}>
                       {kiosk.name}
                     </option>
                   ))}
