@@ -157,6 +157,76 @@ router.post('/', authenticate, async (req: AuthRequest, res: express.Response) =
   }
 });
 
+// Delete sale (cancel sale) - only for recent sales (within 30 minutes)
+router.delete('/:id', authenticate, async (req: AuthRequest, res: express.Response) => {
+  try {
+    const saleId = parseInt(req.params.id);
+    const userId = req.user!.id;
+    const isAdmin = req.user?.role === 'admin';
+
+    if (!saleId) {
+      return res.status(400).json({ error: 'ID продажу обов\'язковий' });
+    }
+
+    // Get sale
+    const saleResult = await query(
+      `SELECT s.*, p.name as product_name
+       FROM sales s
+       LEFT JOIN products p ON s.product_id = p.id
+       WHERE s.id = $1`,
+      [saleId]
+    );
+
+    if (saleResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Продаж не знайдено' });
+    }
+
+    const sale = saleResult.rows[0];
+
+    // Check permissions - seller can only cancel their own sales
+    if (!isAdmin && sale.seller_id !== userId) {
+      return res.status(403).json({ error: 'Немає доступу до цього продажу' });
+    }
+
+    // Check if sale is recent (within 30 minutes)
+    const saleTime = new Date(sale.created_at);
+    const now = new Date();
+    const minutesDiff = (now.getTime() - saleTime.getTime()) / (1000 * 60);
+
+    if (minutesDiff > 30) {
+      return res.status(400).json({ error: 'Можна відмінити тільки продажі за останні 30 хвилин' });
+    }
+
+    // Start transaction
+    await query('BEGIN');
+
+    try {
+      // Restore product quantity
+      await query(
+        `UPDATE products 
+         SET quantity = quantity + $1,
+             status = CASE WHEN quantity + $1 > 0 THEN 'available' ELSE status END,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = $2`,
+        [sale.quantity, sale.product_id]
+      );
+
+      // Delete sale
+      await query('DELETE FROM sales WHERE id = $1', [saleId]);
+
+      await query('COMMIT');
+
+      res.json({ message: 'Продаж успішно відмінено', sale });
+    } catch (error) {
+      await query('ROLLBACK');
+      throw error;
+    }
+  } catch (error) {
+    console.error('Delete sale error:', error);
+    res.status(500).json({ error: 'Помилка сервера' });
+  }
+});
+
 // Get sales statistics
 router.get('/stats', authenticate, async (req: AuthRequest, res: express.Response) => {
   try {
