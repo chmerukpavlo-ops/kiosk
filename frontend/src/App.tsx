@@ -10,6 +10,7 @@ import { Employees } from './pages/admin/Employees';
 import { Schedule } from './pages/admin/Schedule';
 import { SellerDashboard } from './pages/seller/Dashboard';
 import { Layout } from './components/Layout';
+import { ToastContainer } from './components/Toast';
 
 function AppRoutes() {
   const { user } = useAuth();
@@ -94,6 +95,7 @@ function App() {
         }}
       >
         <AppRoutes />
+        <ToastContainer />
       </BrowserRouter>
     </AuthProvider>
   );
