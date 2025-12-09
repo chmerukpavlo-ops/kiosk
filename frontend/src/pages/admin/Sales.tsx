@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import api from '../../lib/api';
 import { format } from 'date-fns';
 import { uk } from 'date-fns/locale';
+import { toast } from '../../components/Toast';
 
 interface Sale {
   id: number;
@@ -17,6 +18,17 @@ interface Sale {
 export function Sales() {
   const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportColumns, setExportColumns] = useState({
+    id: true,
+    product_name: true,
+    seller_name: true,
+    kiosk_name: true,
+    created_at: true,
+    price: true,
+    commission: true,
+    quantity: false,
+  });
   const [filters, setFilters] = useState({
     startDate: '',
     endDate: '',
@@ -71,7 +83,7 @@ export function Sales() {
       setSales([]);
       // Показуємо помилку користувачу
       if (error.response?.status === 403 || error.response?.status === 401) {
-        alert('Немає доступу до цієї сторінки');
+        toast.error('Немає доступу до цієї сторінки');
       }
     } finally {
       setLoading(false);
@@ -80,27 +92,85 @@ export function Sales() {
 
   const handleExportCSV = () => {
     if (sales.length === 0) {
-      alert('Немає даних для експорту');
+      toast.error('Немає даних для експорту');
       return;
     }
-    
-    const headers = ['ID', 'Товар', 'Продавець', 'Ларьок', 'Час', 'Сума', 'Комісія'];
-    const rows = sales.map((sale) => [
-      String(sale.id),
-      sale.product_name || '-',
-      sale.seller_name || '-',
-      sale.kiosk_name || '-',
-      sale.created_at ? format(new Date(sale.created_at), 'dd.MM.yyyy HH:mm', { locale: uk }) : '-',
-      parseFloat(String(sale.price || 0)).toFixed(2),
-      parseFloat(String(sale.commission || 0)).toFixed(2),
-    ]);
 
-    const csv = [headers, ...rows].map((row) => row.join(',')).join('\n');
+    const selectedColumns = Object.entries(exportColumns)
+      .filter(([_, selected]) => selected)
+      .map(([key]) => key);
+
+    if (selectedColumns.length === 0) {
+      toast.error('Виберіть хоча б одну колонку для експорту');
+      return;
+    }
+
+    const headers: string[] = [];
+    const headerMap: Record<string, string> = {
+      id: 'ID',
+      product_name: 'Товар',
+      seller_name: 'Продавець',
+      kiosk_name: 'Ларьок',
+      created_at: 'Час',
+      price: 'Сума',
+      commission: 'Комісія',
+      quantity: 'Кількість',
+    };
+
+    selectedColumns.forEach((col) => {
+      if (headerMap[col]) {
+        headers.push(headerMap[col]);
+      }
+    });
+
+    const rows = sales.map((sale) => {
+      const row: string[] = [];
+      selectedColumns.forEach((col) => {
+        let value = '';
+        switch (col) {
+          case 'id':
+            value = String(sale.id);
+            break;
+          case 'product_name':
+            value = sale.product_name || '-';
+            break;
+          case 'seller_name':
+            value = sale.seller_name || '-';
+            break;
+          case 'kiosk_name':
+            value = sale.kiosk_name || '-';
+            break;
+          case 'created_at':
+            value = sale.created_at ? format(new Date(sale.created_at), 'dd.MM.yyyy HH:mm', { locale: uk }) : '-';
+            break;
+          case 'price':
+            value = parseFloat(String(sale.price || 0)).toFixed(2);
+            break;
+          case 'commission':
+            value = parseFloat(String(sale.commission || 0)).toFixed(2);
+            break;
+          case 'quantity':
+            value = String(sale.quantity || 1);
+            break;
+        }
+        // Екранування ком та лапок для CSV
+        if (value.includes(',') || value.includes(';') || value.includes('"') || value.includes('\n')) {
+          value = `"${value.replace(/"/g, '""')}"`;
+        }
+        row.push(value);
+      });
+      return row;
+    });
+
+    // Використовуємо крапку з комою як роздільник для кращої сумісності з Excel
+    const csv = [headers, ...rows].map((row) => row.join(';')).join('\n');
     const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `sales_${format(new Date(), 'yyyy-MM-dd')}.csv`;
     link.click();
+    toast.success('Продажі успішно експортовано');
+    setShowExportModal(false);
   };
 
   const totalRevenue = sales.reduce((sum, sale) => sum + (parseFloat(String(sale.price || 0)) || 0), 0);
@@ -110,8 +180,8 @@ export function Sales() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Продажі</h1>
-        <button onClick={handleExportCSV} className="btn btn-primary">
-          Експорт CSV
+        <button onClick={() => setShowExportModal(true)} className="btn btn-primary">
+          📥 Експорт CSV
         </button>
       </div>
 
@@ -232,6 +302,111 @@ export function Sales() {
           </div>
         )}
       </div>
+
+      {/* Export Modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="card max-w-md w-full">
+            <h2 className="text-xl font-bold mb-4">Експорт продажів</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Виберіть колонки для експорту:</label>
+                <div className="space-y-2">
+                  {Object.entries(exportColumns).map(([key, value]) => (
+                    <label key={key} className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={value}
+                        onChange={(e) =>
+                          setExportColumns({ ...exportColumns, [key]: e.target.checked })
+                        }
+                        className="rounded"
+                      />
+                      <span className="text-sm">
+                        {key === 'id' && 'ID'}
+                        {key === 'product_name' && 'Товар'}
+                        {key === 'seller_name' && 'Продавець'}
+                        {key === 'kiosk_name' && 'Ларьок'}
+                        {key === 'created_at' && 'Час продажу'}
+                        {key === 'price' && 'Сума'}
+                        {key === 'commission' && 'Комісія'}
+                        {key === 'quantity' && 'Кількість'}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setExportColumns({
+                      id: true,
+                      product_name: true,
+                      seller_name: true,
+                      kiosk_name: true,
+                      created_at: true,
+                      price: true,
+                      commission: true,
+                      quantity: true,
+                    });
+                  }}
+                  className="btn btn-secondary text-sm"
+                >
+                  Всі
+                </button>
+                <button
+                  onClick={() => {
+                    setExportColumns({
+                      id: false,
+                      product_name: true,
+                      seller_name: false,
+                      kiosk_name: false,
+                      created_at: true,
+                      price: true,
+                      commission: false,
+                      quantity: false,
+                    });
+                  }}
+                  className="btn btn-secondary text-sm"
+                >
+                  Мінімальний
+                </button>
+                <button
+                  onClick={() => {
+                    setExportColumns({
+                      id: true,
+                      product_name: true,
+                      seller_name: true,
+                      kiosk_name: true,
+                      created_at: true,
+                      price: true,
+                      commission: true,
+                      quantity: false,
+                    });
+                  }}
+                  className="btn btn-secondary text-sm"
+                >
+                  Для бухгалтерії
+                </button>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={() => setShowExportModal(false)}
+                  className="btn btn-secondary flex-1"
+                >
+                  Скасувати
+                </button>
+                <button
+                  onClick={handleExportCSV}
+                  className="btn btn-primary flex-1"
+                >
+                  Експортувати
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
