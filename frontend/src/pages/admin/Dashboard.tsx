@@ -18,8 +18,20 @@ interface DashboardData {
     total_products: number;
     revenue_today: number;
     sales_today: number;
+    expenses_today?: number;
+    purchase_cost_today?: number;
+    margin_today?: number;
+    margin_percent_today?: number;
   };
-  chart: Array<{ date: string; sales_count: number; revenue: number }>;
+  chart: Array<{ 
+    date: string; 
+    sales_count: number; 
+    revenue: number;
+    expenses?: number;
+    purchase_cost?: number;
+    margin?: number;
+    margin_percent?: number;
+  }>;
   recent_sales: any[];
   top_sellers: any[];
   top_products: any[];
@@ -57,22 +69,45 @@ export function AdminDashboard() {
       <h1 className="text-2xl font-bold text-gray-900">Дашборд адміністратора</h1>
 
       {/* Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <div className="card bg-gradient-to-br from-blue-500 to-blue-600 text-white">
           <div className="text-sm opacity-90 mb-1">Наявність товарів</div>
-          <div className="text-3xl font-bold">{data.cards.total_products}</div>
+          <div className="text-2xl font-bold">{data.cards.total_products}</div>
         </div>
 
         <div className="card bg-gradient-to-br from-green-500 to-green-600 text-white">
           <div className="text-sm opacity-90 mb-1">Виручка за день</div>
-          <div className="text-3xl font-bold">
+          <div className="text-2xl font-bold">
             {data.cards.revenue_today.toFixed(2)} ₴
           </div>
         </div>
 
+        <div className="card bg-gradient-to-br from-red-500 to-red-600 text-white">
+          <div className="text-sm opacity-90 mb-1">Витрати за день</div>
+          <div className="text-2xl font-bold">
+            {(data.cards.expenses_today || 0).toFixed(2)} ₴
+          </div>
+        </div>
+
+        <div className="card bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+          <div className="text-sm opacity-90 mb-1">Собівартість</div>
+          <div className="text-2xl font-bold">
+            {(data.cards.purchase_cost_today || 0).toFixed(2)} ₴
+          </div>
+        </div>
+
+        <div className="card bg-gradient-to-br from-emerald-500 to-emerald-600 text-white">
+          <div className="text-sm opacity-90 mb-1">Маржа за день</div>
+          <div className="text-2xl font-bold">
+            {(data.cards.margin_today || 0).toFixed(2)} ₴
+          </div>
+        </div>
+
         <div className="card bg-gradient-to-br from-orange-500 to-orange-600 text-white">
-          <div className="text-sm opacity-90 mb-1">Проданих товарів сьогодні</div>
-          <div className="text-3xl font-bold">{data.cards.sales_today}</div>
+          <div className="text-sm opacity-90 mb-1">Маржинальність</div>
+          <div className="text-2xl font-bold">
+            {(data.cards.margin_percent_today || 0).toFixed(1)}%
+          </div>
         </div>
       </div>
 
@@ -100,6 +135,18 @@ export function AdminDashboard() {
               dataKey="revenue"
               stroke="#10b981"
               name="Виручка (₴)"
+            />
+            <Line
+              type="monotone"
+              dataKey="expenses"
+              stroke="#ef4444"
+              name="Витрати (₴)"
+            />
+            <Line
+              type="monotone"
+              dataKey="margin"
+              stroke="#14b8a6"
+              name="Маржа (₴)"
             />
           </LineChart>
         </ResponsiveContainer>

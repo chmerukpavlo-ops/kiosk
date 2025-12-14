@@ -8,6 +8,7 @@ import { Sales } from './pages/admin/Sales';
 import { Kiosks } from './pages/admin/Kiosks';
 import { Employees } from './pages/admin/Employees';
 import { Schedule } from './pages/admin/Schedule';
+import { Expenses } from './pages/admin/Expenses';
 import { SellerDashboard } from './pages/seller/Dashboard';
 import { Layout } from './components/Layout';
 import { ToastContainer } from './components/Toast';
@@ -77,6 +78,16 @@ function AppRoutes() {
           <ProtectedRoute requireAdmin>
             <Layout>
               <Schedule />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/expenses"
+        element={
+          <ProtectedRoute requireAdmin>
+            <Layout>
+              <Expenses />
             </Layout>
           </ProtectedRoute>
         }

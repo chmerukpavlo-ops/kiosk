@@ -89,6 +89,38 @@ export async function initDatabase() {
       );
     `);
 
+    // Додати purchase_price до products якщо не існує
+    await query(`
+      DO $$ 
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'products' AND column_name = 'purchase_price'
+        ) THEN
+          ALTER TABLE products ADD COLUMN purchase_price DECIMAL(10, 2);
+        END IF;
+      END $$;
+    `);
+
+    // Створити таблицю витрат
+    await query(`
+      CREATE TABLE IF NOT EXISTS expenses (
+        id SERIAL PRIMARY KEY,
+        kiosk_id INTEGER REFERENCES kiosks(id) ON DELETE CASCADE,
+        category VARCHAR(50) NOT NULL CHECK (category IN ('rent', 'purchase', 'other')),
+        description TEXT,
+        amount DECIMAL(10, 2) NOT NULL,
+        date DATE NOT NULL,
+        created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Індекси для expenses
+    await query(`CREATE INDEX IF NOT EXISTS idx_expenses_kiosk ON expenses(kiosk_id);`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(date);`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category);`);
+
     // Create indexes
     await query(`CREATE INDEX IF NOT EXISTS idx_products_kiosk ON products(kiosk_id);`);
     await query(`CREATE INDEX IF NOT EXISTS idx_sales_seller ON sales(seller_id);`);

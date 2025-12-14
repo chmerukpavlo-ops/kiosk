@@ -9,6 +9,7 @@ import kiosksRoutes from './routes/kiosks.js';
 import employeesRoutes from './routes/employees.js';
 import scheduleRoutes from './routes/schedule.js';
 import statsRoutes from './routes/stats.js';
+import expensesRoutes from './routes/expenses.js';
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.use('/api/kiosks', kiosksRoutes);
 app.use('/api/employees', employeesRoutes);
 app.use('/api/schedule', scheduleRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/expenses', expensesRoutes);
 
 // Root endpoint - API info
 app.get('/', (req, res) => {
@@ -46,6 +48,7 @@ app.get('/', (req, res) => {
       employees: '/api/employees',
       schedule: '/api/schedule',
       stats: '/api/stats',
+      expenses: '/api/expenses',
     },
     frontend: 'http://localhost:5173',
     docs: 'See README.md for API documentation',

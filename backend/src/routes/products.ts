@@ -100,17 +100,17 @@ router.get('/:id', authenticate, async (req: express.Request, res: express.Respo
 // Create product (admin only)
 router.post('/', authenticate, requireAdmin, async (req: express.Request, res: express.Response) => {
   try {
-    const { name, brand, type, price, quantity, kiosk_id, status } = req.body;
+    const { name, brand, type, price, purchase_price, quantity, kiosk_id, status } = req.body;
 
     if (!name || !price || kiosk_id === undefined) {
       return res.status(400).json({ error: 'Назва, ціна та ларьок обов\'язкові' });
     }
 
     const result = await query(
-      `INSERT INTO products (name, brand, type, price, quantity, kiosk_id, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO products (name, brand, type, price, purchase_price, quantity, kiosk_id, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING *`,
-      [name, brand || null, type || null, price, quantity || 0, kiosk_id, status || 'available']
+      [name, brand || null, type || null, price, purchase_price || null, quantity || 0, kiosk_id, status || 'available']
     );
 
     res.status(201).json(result.rows[0]);
@@ -123,7 +123,7 @@ router.post('/', authenticate, requireAdmin, async (req: express.Request, res: e
 // Update product (admin only)
 router.put('/:id', authenticate, requireAdmin, async (req: express.Request, res: express.Response) => {
   try {
-    const { name, brand, type, price, quantity, kiosk_id, status } = req.body;
+    const { name, brand, type, price, purchase_price, quantity, kiosk_id, status } = req.body;
 
     const result = await query(
       `UPDATE products 
@@ -131,13 +131,14 @@ router.put('/:id', authenticate, requireAdmin, async (req: express.Request, res:
            brand = COALESCE($2, brand),
            type = COALESCE($3, type),
            price = COALESCE($4, price),
-           quantity = COALESCE($5, quantity),
-           kiosk_id = COALESCE($6, kiosk_id),
-           status = COALESCE($7, status),
+           purchase_price = COALESCE($5, purchase_price),
+           quantity = COALESCE($6, quantity),
+           kiosk_id = COALESCE($7, kiosk_id),
+           status = COALESCE($8, status),
            updated_at = CURRENT_TIMESTAMP
-       WHERE id = $8
+       WHERE id = $9
        RETURNING *`,
-      [name, brand, type, price, quantity, kiosk_id, status, req.params.id]
+      [name, brand, type, price, purchase_price, quantity, kiosk_id, status, req.params.id]
     );
 
     if (result.rows.length === 0) {

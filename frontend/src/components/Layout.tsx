@@ -22,6 +22,7 @@ export function Layout({ children }: LayoutProps) {
         { path: '/', label: 'Дашборд', icon: '📊' },
         { path: '/products', label: 'Товари', icon: '📦' },
         { path: '/sales', label: 'Продажі', icon: '💰' },
+        { path: '/expenses', label: 'Фінанси', icon: '💳' },
         { path: '/kiosks', label: 'Ларьки', icon: '🏪' },
         { path: '/employees', label: 'Продавці', icon: '👥' },
         { path: '/schedule', label: 'Графік', icon: '📅' },

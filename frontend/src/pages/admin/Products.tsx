@@ -9,6 +9,7 @@ interface Product {
   brand?: string;
   type?: string;
   price: number | string;
+  purchase_price?: number | string;
   quantity: number;
   kiosk_id: number;
   kiosk_name?: string;
@@ -107,11 +108,13 @@ export function Products() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    const purchasePrice = formData.get('purchase_price');
     const data = {
       name: formData.get('name'),
       brand: formData.get('brand'),
       type: formData.get('type'),
       price: parseFloat(formData.get('price') as string),
+      purchase_price: purchasePrice ? parseFloat(purchasePrice as string) : null,
       quantity: parseInt(formData.get('quantity') as string),
       kiosk_id: parseInt(formData.get('kiosk_id') as string),
       status: formData.get('status'),
@@ -555,7 +558,7 @@ export function Products() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Ціна *</label>
+                <label className="block text-sm font-medium mb-1">Ціна продажу *</label>
                 <input
                   type="number"
                   step="0.01"
@@ -563,6 +566,17 @@ export function Products() {
                   defaultValue={editingProduct?.price ? parseFloat(String(editingProduct.price)) : ''}
                   className="input"
                   required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Собівартість (закупівля)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  name="purchase_price"
+                  defaultValue={editingProduct?.purchase_price ? parseFloat(String(editingProduct.purchase_price)) : ''}
+                  className="input"
+                  placeholder="Необов'язково"
                 />
               </div>
               <div>
