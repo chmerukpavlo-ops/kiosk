@@ -103,9 +103,8 @@ router.post('/', authenticate, async (req: AuthRequest, res: express.Response) =
     const userResult = await query('SELECT kiosk_id FROM users WHERE id = $1', [seller_id]);
     const kiosk_id = userResult.rows[0]?.kiosk_id || product.kiosk_id;
 
-    // Calculate commission (12%)
+    // Calculate total price
     const totalPrice = product.price * quantity;
-    const commission = totalPrice * 0.12;
 
     // Start transaction
     await query('BEGIN');
@@ -113,10 +112,10 @@ router.post('/', authenticate, async (req: AuthRequest, res: express.Response) =
     try {
       // Create sale
       const saleResult = await query(
-        `INSERT INTO sales (product_id, seller_id, kiosk_id, quantity, price, commission)
-         VALUES ($1, $2, $3, $4, $5, $6)
+        `INSERT INTO sales (product_id, seller_id, kiosk_id, quantity, price)
+         VALUES ($1, $2, $3, $4, $5)
          RETURNING *`,
-        [product_id, seller_id, kiosk_id, quantity, totalPrice, commission]
+        [product_id, seller_id, kiosk_id, quantity, totalPrice]
       );
 
       // Update product quantity
@@ -246,7 +245,6 @@ router.get('/stats', authenticate, async (req: AuthRequest, res: express.Respons
     let sql = `SELECT 
       COUNT(*) as total_sales,
       SUM(price) as total_revenue,
-      SUM(commission) as total_commission,
       SUM(quantity) as total_items
     FROM sales WHERE ${dateFilter}`;
 
@@ -272,7 +270,7 @@ router.get('/stats', authenticate, async (req: AuthRequest, res: express.Respons
     }
 
     const result = await query(sql, params);
-    res.json(result.rows[0] || { total_sales: 0, total_revenue: 0, total_commission: 0, total_items: 0 });
+    res.json(result.rows[0] || { total_sales: 0, total_revenue: 0, total_items: 0 });
   } catch (error) {
     console.error('Get sales stats error:', error);
     res.status(500).json({ error: 'Помилка сервера' });

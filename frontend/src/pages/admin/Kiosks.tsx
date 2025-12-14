@@ -8,7 +8,7 @@ interface Kiosk {
   address: string;
   stats?: {
     products: { total: number; total_quantity: number };
-    sales: { total_sales: number; total_revenue: number; total_commission: number };
+    sales: { total_sales: number; total_revenue: number };
   };
   employees?: any[];
 }

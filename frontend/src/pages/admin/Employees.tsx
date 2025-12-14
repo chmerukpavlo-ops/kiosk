@@ -9,7 +9,6 @@ interface Employee {
   kiosk_id?: number;
   kiosk_name?: string;
   sales_today?: number;
-  commission_today?: number;
 }
 
 export function Employees() {
@@ -112,7 +111,6 @@ export function Employees() {
                   <th>Логін</th>
                   <th>Ларьок</th>
                   <th>Продажів за день</th>
-                  <th>Зарплата (12%)</th>
                   <th>Дії</th>
                 </tr>
               </thead>
@@ -123,9 +121,6 @@ export function Employees() {
                     <td>{employee.username}</td>
                     <td>{employee.kiosk_name || '-'}</td>
                     <td>{employee.sales_today || 0}</td>
-                    <td className="font-semibold text-purple-600">
-                      {parseFloat(String(employee.commission_today || 0)).toFixed(2)} ₴
-                    </td>
                     <td>
                       <div className="flex space-x-2">
                         <Link

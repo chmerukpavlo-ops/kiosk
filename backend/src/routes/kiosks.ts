@@ -36,8 +36,7 @@ router.get('/:id', authenticate, async (req: express.Request, res: express.Respo
     const salesResult = await query(
       `SELECT 
         COUNT(*) as total_sales,
-        SUM(price) as total_revenue,
-        SUM(commission) as total_commission
+        SUM(price) as total_revenue
        FROM sales WHERE kiosk_id = $1`,
       [req.params.id]
     );

@@ -10,8 +10,7 @@ router.get('/', authenticate, requireAdmin, async (req: express.Request, res: ex
   try {
     const result = await query(
       `SELECT u.id, u.username, u.full_name, u.role, u.kiosk_id, k.name as kiosk_name,
-              (SELECT COUNT(*) FROM sales WHERE seller_id = u.id AND DATE(created_at) = CURRENT_DATE) as sales_today,
-              (SELECT COALESCE(SUM(commission), 0) FROM sales WHERE seller_id = u.id AND DATE(created_at) = CURRENT_DATE) as commission_today
+              (SELECT COUNT(*) FROM sales WHERE seller_id = u.id AND DATE(created_at) = CURRENT_DATE) as sales_today
        FROM users u
        LEFT JOIN kiosks k ON u.kiosk_id = k.id
        WHERE u.role = 'seller'
@@ -51,7 +50,6 @@ router.get('/:id', authenticate, async (req: AuthRequest, res: express.Response)
       `SELECT 
         COUNT(*) as total_sales,
         SUM(price) as total_revenue,
-        SUM(commission) as total_commission,
         SUM(quantity) as total_items
        FROM sales WHERE seller_id = $1`,
       [req.params.id]
@@ -61,8 +59,7 @@ router.get('/:id', authenticate, async (req: AuthRequest, res: express.Response)
     const todayStats = await query(
       `SELECT 
         COUNT(*) as sales_today,
-        COALESCE(SUM(price), 0) as revenue_today,
-        COALESCE(SUM(commission), 0) as commission_today
+        COALESCE(SUM(price), 0) as revenue_today
        FROM sales WHERE seller_id = $1 AND DATE(created_at) = CURRENT_DATE`,
       [req.params.id]
     );

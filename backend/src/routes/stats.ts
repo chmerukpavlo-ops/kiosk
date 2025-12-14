@@ -16,12 +16,6 @@ router.get('/dashboard', authenticate, requireAdmin, async (req: express.Request
        FROM sales WHERE DATE(created_at) = CURRENT_DATE`
     );
 
-    // Today's commission
-    const commissionResult = await query(
-      `SELECT COALESCE(SUM(commission), 0) as commission_today
-       FROM sales WHERE DATE(created_at) = CURRENT_DATE`
-    );
-
     // Today's sales count
     const salesCountResult = await query(
       `SELECT COUNT(*) as sales_today
@@ -60,8 +54,7 @@ router.get('/dashboard', authenticate, requireAdmin, async (req: express.Request
         u.id,
         u.full_name,
         COUNT(s.id) as sales_count,
-        COALESCE(SUM(s.price), 0) as revenue,
-        COALESCE(SUM(s.commission), 0) as commission
+        COALESCE(SUM(s.price), 0) as revenue
        FROM users u
        LEFT JOIN sales s ON u.id = s.seller_id AND DATE(s.created_at) = CURRENT_DATE
        WHERE u.role = 'seller'
@@ -89,7 +82,6 @@ router.get('/dashboard', authenticate, requireAdmin, async (req: express.Request
       cards: {
         total_products: parseInt(productsResult.rows[0]?.total_quantity || '0'),
         revenue_today: parseFloat(revenueResult.rows[0]?.revenue_today || '0'),
-        commission_today: parseFloat(commissionResult.rows[0]?.commission_today || '0'),
         sales_today: parseInt(salesCountResult.rows[0]?.sales_today || '0'),
       },
       chart: chartResult.rows,
@@ -126,13 +118,6 @@ router.get('/seller', authenticate, async (req: AuthRequest, res: express.Respon
       [userId]
     );
 
-    // Today's commission
-    const commissionResult = await query(
-      `SELECT COALESCE(SUM(commission), 0) as commission_today
-       FROM sales WHERE seller_id = $1 AND DATE(created_at) = CURRENT_DATE`,
-      [userId]
-    );
-
     // Available products
     const availableProductsResult = await query(
       'SELECT * FROM products WHERE kiosk_id = $1 AND quantity > 0 ORDER BY name',
@@ -155,7 +140,6 @@ router.get('/seller', authenticate, async (req: AuthRequest, res: express.Respon
         total_products: parseInt(productsResult.rows[0]?.total || '0'),
         total_quantity: parseInt(productsResult.rows[0]?.total_quantity || '0'),
         revenue_today: parseFloat(revenueResult.rows[0]?.revenue_today || '0'),
-        commission_today: parseFloat(commissionResult.rows[0]?.commission_today || '0'),
       },
       products: availableProductsResult.rows,
       recent_sales: recentSalesResult.rows,

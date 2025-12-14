@@ -9,7 +9,6 @@ interface SellerDashboardData {
     total_products: number;
     total_quantity: number;
     revenue_today: number | string;
-    commission_today: number | string;
   };
   products: Array<{
     id: number;
@@ -23,7 +22,6 @@ interface SellerDashboardData {
     id: number;
     product_name: string;
     price: number | string;
-    commission: number | string;
     created_at: string;
   }>;
 }
@@ -205,7 +203,6 @@ export function SellerDashboard() {
     (sum, item) => sum + parseFloat(String(item.price || 0)) * item.quantity,
     0
   );
-  const cartCommission = cartTotal * 0.12;
 
   const getStockStatus = (quantity: number) => {
     if (quantity === 0) return { color: 'text-gray-400', bg: 'bg-gray-100', label: 'Немає' };
@@ -227,7 +224,7 @@ export function SellerDashboard() {
       {/* Header з картками */}
       <div className="flex-shrink-0 bg-white border-b border-gray-200 p-4">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Панель продавця</h1>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-3 rounded-lg">
             <div className="text-xs opacity-90 mb-1">Наявність</div>
             <div className="text-lg font-bold">{data.cards.total_quantity} шт.</div>
@@ -235,10 +232,6 @@ export function SellerDashboard() {
           <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-3 rounded-lg">
             <div className="text-xs opacity-90 mb-1">Виручка</div>
             <div className="text-lg font-bold">{parseFloat(String(data.cards.revenue_today || 0)).toFixed(2)} ₴</div>
-          </div>
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-3 rounded-lg">
-            <div className="text-xs opacity-90 mb-1">Комісія</div>
-            <div className="text-lg font-bold">{parseFloat(String(data.cards.commission_today || 0)).toFixed(2)} ₴</div>
           </div>
           <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-3 rounded-lg">
             <div className="text-xs opacity-90 mb-1">Продано</div>
@@ -437,15 +430,7 @@ export function SellerDashboard() {
           {cart.length > 0 && (
             <div className="flex-shrink-0 border-t border-gray-200 p-4 bg-gray-50 space-y-3">
               <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Сума:</span>
-                  <span className="font-semibold text-green-600">{cartTotal.toFixed(2)} ₴</span>
-                </div>
-                <div className="flex justify-between text-sm text-purple-600">
-                  <span>Комісія (12%):</span>
-                  <span className="font-semibold">{cartCommission.toFixed(2)} ₴</span>
-                </div>
-                <div className="flex justify-between text-base font-bold pt-2 border-t border-gray-300">
+                <div className="flex justify-between text-base font-bold pt-2">
                   <span>Всього:</span>
                   <span className="text-green-600">{cartTotal.toFixed(2)} ₴</span>
                 </div>

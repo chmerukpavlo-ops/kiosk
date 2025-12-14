@@ -59,9 +59,21 @@ export async function initDatabase() {
         kiosk_id INTEGER REFERENCES kiosks(id) ON DELETE CASCADE,
         quantity INTEGER NOT NULL DEFAULT 1,
         price DECIMAL(10, 2) NOT NULL,
-        commission DECIMAL(10, 2) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+    `);
+    
+    // Міграція: видалення колонки commission якщо вона існує
+    await query(`
+      DO $$ 
+      BEGIN
+        IF EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'sales' AND column_name = 'commission'
+        ) THEN
+          ALTER TABLE sales DROP COLUMN commission;
+        END IF;
+      END $$;
     `);
 
     await query(`

@@ -17,7 +17,6 @@ interface DashboardData {
   cards: {
     total_products: number;
     revenue_today: number;
-    commission_today: number;
     sales_today: number;
   };
   chart: Array<{ date: string; sales_count: number; revenue: number }>;
@@ -58,7 +57,7 @@ export function AdminDashboard() {
       <h1 className="text-2xl font-bold text-gray-900">Дашборд адміністратора</h1>
 
       {/* Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="card bg-gradient-to-br from-blue-500 to-blue-600 text-white">
           <div className="text-sm opacity-90 mb-1">Наявність товарів</div>
           <div className="text-3xl font-bold">{data.cards.total_products}</div>
@@ -68,13 +67,6 @@ export function AdminDashboard() {
           <div className="text-sm opacity-90 mb-1">Виручка за день</div>
           <div className="text-3xl font-bold">
             {data.cards.revenue_today.toFixed(2)} ₴
-          </div>
-        </div>
-
-        <div className="card bg-gradient-to-br from-purple-500 to-purple-600 text-white">
-          <div className="text-sm opacity-90 mb-1">Комісія працівників</div>
-          <div className="text-3xl font-bold">
-            {data.cards.commission_today.toFixed(2)} ₴
           </div>
         </div>
 
@@ -165,9 +157,9 @@ export function AdminDashboard() {
                 </div>
                 <div className="text-right">
                   <div className="font-semibold text-green-600">
-                    {parseFloat(String(seller.commission || 0)).toFixed(2)} ₴
+                    {parseFloat(String(seller.revenue || 0)).toFixed(2)} ₴
                   </div>
-                  <div className="text-xs text-gray-500">комісія</div>
+                  <div className="text-xs text-gray-500">виручка</div>
                 </div>
               </div>
             ))}

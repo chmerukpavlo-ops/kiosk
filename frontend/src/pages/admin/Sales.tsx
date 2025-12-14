@@ -11,7 +11,6 @@ interface Sale {
   kiosk_name: string;
   price: number;
   quantity: number;
-  commission: number;
   created_at: string;
 }
 
@@ -26,7 +25,6 @@ export function Sales() {
     kiosk_name: true,
     created_at: true,
     price: true,
-    commission: true,
     quantity: false,
   });
   const [filters, setFilters] = useState({
@@ -113,7 +111,6 @@ export function Sales() {
       kiosk_name: 'Ларьок',
       created_at: 'Час',
       price: 'Сума',
-      commission: 'Комісія',
       quantity: 'Кількість',
     };
 
@@ -146,9 +143,6 @@ export function Sales() {
           case 'price':
             value = parseFloat(String(sale.price || 0)).toFixed(2);
             break;
-          case 'commission':
-            value = parseFloat(String(sale.commission || 0)).toFixed(2);
-            break;
           case 'quantity':
             value = String(sale.quantity || 1);
             break;
@@ -174,7 +168,6 @@ export function Sales() {
   };
 
   const totalRevenue = sales.reduce((sum, sale) => sum + (parseFloat(String(sale.price || 0)) || 0), 0);
-  const totalCommission = sales.reduce((sum, sale) => sum + (parseFloat(String(sale.commission || 0)) || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -240,14 +233,10 @@ export function Sales() {
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="card bg-gradient-to-br from-green-500 to-green-600 text-white">
           <div className="text-sm opacity-90 mb-1">Загальна виручка</div>
           <div className="text-2xl font-bold">{totalRevenue.toFixed(2)} ₴</div>
-        </div>
-        <div className="card bg-gradient-to-br from-purple-500 to-purple-600 text-white">
-          <div className="text-sm opacity-90 mb-1">Загальна комісія</div>
-          <div className="text-2xl font-bold">{totalCommission.toFixed(2)} ₴</div>
         </div>
         <div className="card bg-gradient-to-br from-blue-500 to-blue-600 text-white">
           <div className="text-sm opacity-90 mb-1">Всього продажів</div>
@@ -270,13 +259,12 @@ export function Sales() {
                   <th>Ларьок</th>
                   <th>Час продажу</th>
                   <th>Сума</th>
-                  <th>Комісія</th>
                 </tr>
               </thead>
               <tbody>
                 {sales.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-8 text-gray-500">
+                    <td colSpan={6} className="text-center py-8 text-gray-500">
                       Немає продажів
                     </td>
                   </tr>
@@ -293,7 +281,6 @@ export function Sales() {
                     <td className="font-semibold text-green-600">
                       {parseFloat(String(sale.price || 0)).toFixed(2)} ₴
                     </td>
-                    <td className="text-purple-600">{parseFloat(String(sale.commission || 0)).toFixed(2)} ₴</td>
                     </tr>
                   ))
                 )}
@@ -329,7 +316,6 @@ export function Sales() {
                         {key === 'kiosk_name' && 'Ларьок'}
                         {key === 'created_at' && 'Час продажу'}
                         {key === 'price' && 'Сума'}
-                        {key === 'commission' && 'Комісія'}
                         {key === 'quantity' && 'Кількість'}
                       </span>
                     </label>
@@ -346,7 +332,6 @@ export function Sales() {
                       kiosk_name: true,
                       created_at: true,
                       price: true,
-                      commission: true,
                       quantity: true,
                     });
                   }}
@@ -363,7 +348,6 @@ export function Sales() {
                       kiosk_name: false,
                       created_at: true,
                       price: true,
-                      commission: false,
                       quantity: false,
                     });
                   }}
@@ -380,7 +364,6 @@ export function Sales() {
                       kiosk_name: true,
                       created_at: true,
                       price: true,
-                      commission: true,
                       quantity: false,
                     });
                   }}
