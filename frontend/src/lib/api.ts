@@ -16,7 +16,7 @@ console.log('🌐 API Base URL:', apiBaseURL);
 // Визначаємо timeout залежно від середовища
 // Render free tier може "засинати" і перший запит може займати 30-60 секунд
 const isProduction = !import.meta.env.DEV;
-const timeout = isProduction ? 60000 : 10000; // 60 секунд для production, 10 для dev
+const timeout = isProduction ? 90000 : 10000; // 90 секунд для production (Render free tier), 10 для dev
 
 const api = axios.create({
   baseURL: apiBaseURL,
@@ -26,12 +26,36 @@ const api = axios.create({
   timeout: timeout,
 });
 
+// Функція для "пробудження" backend на Render free tier
+async function wakeUpBackend(): Promise<boolean> {
+  if (!isProduction) return true; // Не потрібно для локальної розробки
+  
+  try {
+    // Робимо легкий запит до health endpoint для пробудження
+    const healthUrl = apiBaseURL.replace('/api', '') || apiBaseURL;
+    await axios.get(`${healthUrl}/api/health`, { timeout: 30000 });
+    return true;
+  } catch (error) {
+    console.warn('⚠️ Backend wake-up failed, but continuing...', error);
+    return false; // Продовжуємо навіть якщо wake-up не вдався
+  }
+}
+
 // Add token to requests
-api.interceptors.request.use((config) => {
+api.interceptors.request.use(async (config) => {
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
+  // Для production: пробуджуємо backend перед важливими запитами
+  if (isProduction && !config.headers['X-Skip-Wakeup']) {
+    // Пробуджуємо тільки для POST запитів (login, create, etc.)
+    if (config.method === 'post' || config.method === 'put') {
+      await wakeUpBackend();
+    }
+  }
+  
   return config;
 });
 
@@ -44,7 +68,7 @@ api.interceptors.response.use(
       console.error('⏱️ Request timeout:', error.message);
       const timeoutError = new Error(
         isProduction 
-          ? 'Сервер не відповідає. Якщо використовуєте Render free tier, перший запит може займати до 60 секунд. Спробуйте ще раз.'
+          ? 'Сервер не відповідає. Render free tier може "засинати" - перший запит може займати до 90 секунд. Спробуйте ще раз через кілька секунд.'
           : 'Таймаут запиту. Перевірте, чи запущений backend на порту 3001.'
       );
       (timeoutError as any).isTimeout = true;

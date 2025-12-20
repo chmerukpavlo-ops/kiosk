@@ -16,6 +16,29 @@ export function Login() {
     setLoading(true);
 
     try {
+      // Для production: спробуємо "пробудити" backend перед логіном
+      const isProduction = !import.meta.env.DEV;
+      if (isProduction) {
+        setWakingUp(true);
+        try {
+          const apiUrl = import.meta.env.VITE_API_URL || '';
+          if (apiUrl) {
+            const healthUrl = apiUrl.replace('/api', '');
+            console.log('🔄 Пробудження backend...');
+            await fetch(`${healthUrl}/api/health`, { 
+              method: 'GET',
+              signal: AbortSignal.timeout(45000) // 45 секунд для wake-up
+            });
+            console.log('✅ Backend пробуджено');
+          }
+        } catch (wakeError) {
+          console.warn('⚠️ Backend wake-up attempt:', wakeError);
+          // Продовжуємо навіть якщо wake-up не вдався
+        } finally {
+          setWakingUp(false);
+        }
+      }
+
       await login(username, password);
       navigate('/');
     } catch (err: any) {
@@ -84,10 +107,10 @@ export function Login() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || wakingUp}
             className="btn btn-primary w-full py-3 text-base touch-manipulation"
           >
-            {loading ? 'Вхід...' : 'Увійти'}
+            {wakingUp ? 'Пробудження сервера...' : loading ? 'Вхід...' : 'Увійти'}
           </button>
         </form>
 
