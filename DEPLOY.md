@@ -56,10 +56,12 @@
 
 3. **Налаштування проекту:**
    - **Framework Preset**: `Vite`
-   - **Root Directory**: `frontend`
-   - **Build Command**: `npm run build` (або залиште за замовчуванням)
-   - **Output Directory**: `dist`
-   - **Install Command**: `npm install`
+   - **Root Directory**: `frontend` ⚠️ **ОБОВ'ЯЗКОВО!**
+   - **Build Command**: (залиште порожнім - використовується з `vercel.json`)
+   - **Output Directory**: (залиште порожнім - використовується з `vercel.json`)
+   - **Install Command**: (залиште порожнім - використовується з `vercel.json`)
+   
+   ⚠️ **ВАЖЛИВО:** Після встановлення Root Directory як `frontend`, Vercel автоматично буде працювати з цієї папки, тому команди в `vercel.json` не містять `cd frontend &&`!
 
 4. **Environment Variables:**
    - `VITE_API_URL` = `https://ваш-backend-url.onrender.com`

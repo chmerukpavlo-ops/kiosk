@@ -109,8 +109,9 @@ Frontend: http://localhost:5173
 
 2. **Frontend на Vercel.com:**
    - Імпортуйте проект з GitHub
-   - Встановіть Root Directory: `frontend`
-   - Встановіть `VITE_API_URL` = URL вашого backend
+   - ⚠️ **ВАЖЛИВО:** Встановіть **Root Directory: `frontend`** в налаштуваннях проекту
+   - Встановіть `VITE_API_URL` = URL вашого backend (без `/api` в кінці)
+   - Після встановлення Root Directory, всі команди будуть виконуватися з папки `frontend` автоматично
 
 3. **Тестування PWA:**
    - Відкрийте frontend URL на телефоні
