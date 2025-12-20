@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const timeoutId = setTimeout(() => {
         setLoading(false);
         console.warn('⏱️ API request timeout - using cached user');
-      }, 10000); // 10 second timeout (increased for production)
+      }, 5000); // 5 second timeout
       
       console.log('🔄 Verifying token with API...');
       api.get('/auth/me')
@@ -53,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.log('✅ Token verified, user:', res.data.username);
           setUser(res.data);
           localStorage.setItem('user', JSON.stringify(res.data));
+          setLoading(false);
         })
         .catch((err) => {
           clearTimeout(timeoutId);
@@ -60,6 +61,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (err.response) {
             console.error('Response status:', err.response.status);
             console.error('Response data:', err.response.data);
+          } else {
+            console.error('No response from server - network error or CORS issue');
+            console.error('API Base URL:', import.meta.env.VITE_API_URL || 'NOT SET');
           }
           // Don't clear user immediately - let them try to use the app
           // If API fails, they'll be redirected to login on next request
@@ -69,6 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             localStorage.removeItem('user');
             setUser(null);
           }
+          // Always set loading to false, even on error
           setLoading(false);
         });
     } else {
