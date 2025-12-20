@@ -31,10 +31,22 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       }
 
       setActualTheme(resolvedTheme);
-      document.documentElement.classList.remove('light', 'dark');
-      document.documentElement.classList.add(resolvedTheme);
+      // Використовуємо classList для кращої сумісності
+      if (resolvedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      }
+      
+      // Зберігаємо в localStorage для швидкого доступу
+      if (theme !== 'system') {
+        localStorage.setItem('theme', theme);
+      }
     };
 
+    // Застосовуємо тему одразу
     updateTheme();
 
     // Listen for system theme changes
@@ -52,7 +64,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   };
 
   const toggleTheme = () => {
-    setTheme(actualTheme === 'light' ? 'dark' : 'light');
+    // Перемикаємо між 'light' і 'dark', ігноруючи 'system'
+    const newTheme: Theme = actualTheme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
   };
 
   return (

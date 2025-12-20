@@ -60,15 +60,6 @@
           "value": "no-cache, no-store, must-revalidate"
         }
       ]
-    },
-    {
-      "source": "/(.*\\.(js|css|woff2|png|jpg|jpeg|gif|ico|svg))",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        }
-      ]
     }
   ]
 }

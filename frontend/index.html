@@ -12,6 +12,28 @@
     <link rel="apple-touch-icon" href="/icon.svg" />
     <title>Система обліку кіосків</title>
     <script>
+      // Застосування теми ДО завантаження React (запобігає блиманню)
+      (function() {
+        try {
+          const savedTheme = localStorage.getItem('theme');
+          if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else if (savedTheme === 'light') {
+            document.documentElement.classList.remove('dark');
+          } else if (savedTheme === 'system' || !savedTheme) {
+            // Використовуємо системну тему
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (systemPrefersDark) {
+              document.documentElement.classList.add('dark');
+            } else {
+              document.documentElement.classList.remove('dark');
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to apply theme from localStorage:', e);
+        }
+      })();
+
       // Захист від конфліктів з розширеннями браузера
       (function() {
         // Ізолюємо глобальний scope
