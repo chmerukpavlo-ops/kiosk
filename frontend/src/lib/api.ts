@@ -3,7 +3,17 @@ import axios from 'axios';
 // Використовуємо VITE_API_URL для production (Vercel), інакше /api для локальної розробки
 const apiBaseURL = import.meta.env.VITE_API_URL 
   ? `${import.meta.env.VITE_API_URL}/api`
-  : '/api';
+  : import.meta.env.DEV 
+    ? '/api' 
+    : (() => {
+        console.error('⚠️ VITE_API_URL не встановлено! API запити не працюватимуть на production.');
+        return '/api'; // Fallback, але не працюватиме
+      })();
+
+// Log API URL for debugging
+if (import.meta.env.DEV) {
+  console.log('API Base URL:', apiBaseURL);
+}
 
 const api = axios.create({
   baseURL: apiBaseURL,

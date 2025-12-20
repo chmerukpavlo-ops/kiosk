@@ -1,3 +1,4 @@
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -157,6 +158,13 @@ function AppRoutes() {
 }
 
 function App() {
+  // Check for critical errors on mount
+  React.useEffect(() => {
+    if (!import.meta.env.VITE_API_URL && !import.meta.env.DEV) {
+      console.error('⚠️ VITE_API_URL не встановлено! Перевірте Environment Variables в Vercel.');
+    }
+  }, []);
+
   return (
     <ErrorBoundary>
       <ThemeProvider>

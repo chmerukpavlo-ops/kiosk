@@ -66,6 +66,9 @@
 4. **Environment Variables:**
    - `VITE_API_URL` = `https://ваш-backend-url.onrender.com`
      (Наприклад: `https://kiosk-backend.onrender.com`)
+     ⚠️ **ВАЖЛИВО:** Без `/api` в кінці! Тільки базовий URL backend.
+     Правильно: `https://kiosk-backend.onrender.com`
+     Неправильно: `https://kiosk-backend.onrender.com/api`
 
 5. **Deploy!**
 

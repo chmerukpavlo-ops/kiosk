@@ -27,18 +27,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const savedUser = localStorage.getItem('user');
     
     if (token && savedUser) {
-      setUser(JSON.parse(savedUser));
-      // Verify token
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        console.error('Failed to parse saved user:', e);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        setLoading(false);
+        return;
+      }
+      
+      // Verify token with timeout
+      const timeoutId = setTimeout(() => {
+        setLoading(false);
+        console.warn('API request timeout - using cached user');
+      }, 5000); // 5 second timeout
+      
       api.get('/auth/me')
         .then((res) => {
+          clearTimeout(timeoutId);
           setUser(res.data);
           localStorage.setItem('user', JSON.stringify(res.data));
         })
-        .catch(() => {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
+        .catch((error) => {
+          clearTimeout(timeoutId);
+          console.error('Failed to verify token:', error);
+          // Don't clear user immediately - let them try to use the app
+          // If API fails, they'll be redirected to login on next request
+          if (error.response?.status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setUser(null);
+          }
         })
-        .finally(() => setLoading(false));
+        .finally(() => {
+          clearTimeout(timeoutId);
+          setLoading(false);
+        });
     } else {
       setLoading(false);
     }
