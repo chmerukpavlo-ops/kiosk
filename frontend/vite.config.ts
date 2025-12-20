@@ -14,8 +14,16 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'react-vendor';
+            }
+            if (id.includes('recharts')) {
+              return 'charts-vendor';
+            }
+            return 'vendor';
+          }
         },
       },
     },
@@ -27,13 +35,16 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'icon.svg'],
+      injectRegister: 'auto',
+      strategies: 'generateSW',
       manifest: {
         name: 'Система обліку кіосків',
         short_name: 'Кіоск',
         description: 'Система управління та обліку для кіосків',
-        theme_color: '#3b82f6',
-        background_color: '#ffffff',
+        start_url: '/',
         display: 'standalone',
+        background_color: '#ffffff',
+        theme_color: '#3b82f6',
         orientation: 'portrait-primary',
         icons: [
           {
