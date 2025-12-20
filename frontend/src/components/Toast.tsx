@@ -54,7 +54,7 @@ export function ToastContainer() {
       {currentToasts.map((toast) => (
         <div
           key={toast.id}
-          className={`px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 min-w-[300px] max-w-md animate-slide-in ${
+          className={`px-4 py-3 rounded-lg shadow-lg flex items-start gap-3 min-w-[300px] max-w-md animate-slide-in ${
             toast.type === 'success'
               ? 'bg-green-500 text-white'
               : toast.type === 'error'
@@ -62,10 +62,13 @@ export function ToastContainer() {
               : 'bg-blue-500 text-white'
           }`}
         >
-          <span className="flex-1">{toast.message}</span>
+          <span className="text-xl flex-shrink-0">
+            {toast.type === 'success' ? '✅' : toast.type === 'error' ? '❌' : 'ℹ️'}
+          </span>
+          <span className="flex-1 text-sm leading-relaxed">{toast.message}</span>
           <button
             onClick={() => removeToast(toast.id)}
-            className="text-white hover:text-gray-200 text-xl font-bold"
+            className="text-white hover:text-gray-200 text-xl font-bold flex-shrink-0"
           >
             ×
           </button>

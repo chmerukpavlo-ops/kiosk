@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../../lib/api';
-import { format } from 'date-fns';
+import { format, startOfToday, subDays, startOfMonth, endOfMonth } from 'date-fns';
 import { uk } from 'date-fns/locale';
 import { toast } from '../../components/Toast';
 
@@ -27,14 +27,36 @@ export function Sales() {
     price: true,
     quantity: false,
   });
-  const [filters, setFilters] = useState({
-    startDate: '',
-    endDate: '',
-    seller_id: '',
-    kiosk_id: '',
-  });
+  // Завантажуємо фільтри з localStorage
+  const loadFiltersFromStorage = () => {
+    try {
+      const saved = localStorage.getItem('sales_filters');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Failed to load filters from storage:', e);
+    }
+    return {
+      startDate: '',
+      endDate: '',
+      seller_id: '',
+      kiosk_id: '',
+    };
+  };
+
+  const [filters, setFilters] = useState(loadFiltersFromStorage);
   const [employees, setEmployees] = useState<any[]>([]);
   const [kiosks, setKiosks] = useState<any[]>([]);
+
+  // Зберігаємо фільтри в localStorage при зміні
+  useEffect(() => {
+    try {
+      localStorage.setItem('sales_filters', JSON.stringify(filters));
+    } catch (e) {
+      console.error('Failed to save filters to storage:', e);
+    }
+  }, [filters]);
 
   useEffect(() => {
     loadEmployees();
@@ -169,6 +191,40 @@ export function Sales() {
 
   const totalRevenue = sales.reduce((sum, sale) => sum + (parseFloat(String(sale.price || 0)) || 0), 0);
 
+  const applyQuickFilter = (type: 'today' | 'week' | 'month') => {
+    const today = startOfToday();
+    let startDate = '';
+    let endDate = format(today, 'yyyy-MM-dd');
+
+    switch (type) {
+      case 'today':
+        startDate = format(today, 'yyyy-MM-dd');
+        break;
+      case 'week':
+        startDate = format(subDays(today, 7), 'yyyy-MM-dd');
+        break;
+      case 'month':
+        startDate = format(startOfMonth(today), 'yyyy-MM-dd');
+        endDate = format(endOfMonth(today), 'yyyy-MM-dd');
+        break;
+    }
+
+    setFilters({
+      ...filters,
+      startDate,
+      endDate,
+    });
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      startDate: '',
+      endDate: '',
+      seller_id: '',
+      kiosk_id: '',
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -176,6 +232,41 @@ export function Sales() {
         <button onClick={() => setShowExportModal(true)} className="btn btn-primary">
           📥 Експорт CSV
         </button>
+      </div>
+
+      {/* Quick Filters */}
+      <div className="card bg-gradient-to-r from-blue-50 to-white border-2 border-blue-200">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <span className="text-sm font-semibold text-gray-700">Швидкі фільтри:</span>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => applyQuickFilter('today')}
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-white border-2 border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+            >
+              📅 Сьогодні
+            </button>
+            <button
+              onClick={() => applyQuickFilter('week')}
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-white border-2 border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+            >
+              📆 Останні 7 днів
+            </button>
+            <button
+              onClick={() => applyQuickFilter('month')}
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-white border-2 border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+            >
+              📊 Цей місяць
+            </button>
+            {(filters.startDate || filters.endDate) && (
+              <button
+                onClick={clearFilters}
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 border-2 border-gray-300 text-gray-700 hover:bg-gray-200 transition-colors"
+              >
+                ✕ Скинути
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Filters */}

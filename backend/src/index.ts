@@ -10,6 +10,16 @@ import employeesRoutes from './routes/employees.js';
 import scheduleRoutes from './routes/schedule.js';
 import statsRoutes from './routes/stats.js';
 import expensesRoutes from './routes/expenses.js';
+import financeRoutes from './routes/finance.js';
+import stockRoutes from './routes/stock.js';
+import inventoryRoutes from './routes/inventory.js';
+import customersRoutes from './routes/customers.js';
+import analyticsRoutes from './routes/analytics.js';
+import actionLogsRoutes from './routes/actionLogs.js';
+import automationRoutes from './routes/automation.js';
+import remindersRoutes from './routes/reminders.js';
+import permissionsRoutes from './routes/permissions.js';
+import gamificationRoutes from './routes/gamification.js';
 
 dotenv.config();
 
@@ -32,6 +42,16 @@ app.use('/api/employees', employeesRoutes);
 app.use('/api/schedule', scheduleRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/expenses', expensesRoutes);
+app.use('/api/finance', financeRoutes);
+app.use('/api/stock', stockRoutes);
+app.use('/api/inventory', inventoryRoutes);
+app.use('/api/customers', customersRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/action-logs', actionLogsRoutes);
+app.use('/api/automation', automationRoutes);
+app.use('/api/reminders', remindersRoutes);
+app.use('/api/permissions', permissionsRoutes);
+app.use('/api/gamification', gamificationRoutes);
 
 // Root endpoint - API info
 app.get('/', (req, res) => {
@@ -49,6 +69,16 @@ app.get('/', (req, res) => {
       schedule: '/api/schedule',
       stats: '/api/stats',
       expenses: '/api/expenses',
+      finance: '/api/finance',
+      stock: '/api/stock',
+      inventory: '/api/inventory',
+      customers: '/api/customers',
+      analytics: '/api/analytics',
+      actionLogs: '/api/action-logs',
+      automation: '/api/automation',
+      reminders: '/api/reminders',
+      permissions: '/api/permissions',
+      gamification: '/api/gamification',
     },
     frontend: 'http://localhost:5173',
     docs: 'See README.md for API documentation',

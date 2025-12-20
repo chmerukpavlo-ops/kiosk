@@ -5,7 +5,7 @@ export interface AuthRequest extends Request {
   user?: {
     id: number;
     username: string;
-    role: 'admin' | 'seller';
+    role: 'admin' | 'seller' | 'manager' | 'accountant';
     kiosk_id?: number;
   };
 }

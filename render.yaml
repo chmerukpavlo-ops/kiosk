@@ -11,9 +11,13 @@ services:
       - key: PORT
         value: 10000
       - key: DATABASE_URL
-        sync: false  # Встановіть вручну з Internal Database URL
+        fromDatabase:
+          name: kiosk-db
+          property: connectionString
       - key: JWT_SECRET
-        sync: false  # Встановіть вручну (складний пароль)
+        sync: false  # Встановіть вручну (складний пароль, мінімум 32 символи)
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false  # Опціонально, для відправки чеків у Telegram
 
 databases:
   - name: kiosk-db

@@ -21,16 +21,27 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle auth errors
+// Handle auth errors and network errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Don't redirect on login page
+    // Handle network errors
+    if (!error.response) {
+      console.error('Network error:', error.message);
+      // Don't show error on login page
+      if (!window.location.pathname.includes('/login')) {
+        // Error will be handled by component
+      }
+      return Promise.reject(error);
+    }
+
+    // Handle auth errors
     if (error.response?.status === 401 && !window.location.pathname.includes('/login')) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
     }
+    
     return Promise.reject(error);
   }
 );

@@ -7,6 +7,11 @@
     @apply bg-gray-50 text-gray-900;
   }
   
+  /* Dark mode styles */
+  .dark body {
+    @apply bg-gray-900 text-gray-100;
+  }
+  
   /* Краще для мобільних пристроїв */
   * {
     -webkit-tap-highlight-color: transparent;
@@ -20,6 +25,164 @@
 @layer components {
   .card {
     @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6;
+  }
+  
+  .dark .card {
+    @apply bg-gray-800 border-gray-700 text-gray-100;
+  }
+  
+  /* Dark mode для градієнтів та кольорових карток */
+  .dark .bg-gradient-to-br {
+    border-color: rgb(55 65 81);
+  }
+  
+  .dark .bg-emerald-500,
+  .dark .bg-emerald-600 {
+    background-color: rgb(5 150 105);
+    border-color: rgb(4 120 87);
+  }
+  
+  .dark .bg-slate-600,
+  .dark .bg-slate-700 {
+    background-color: rgb(51 65 85);
+    border-color: rgb(30 41 59);
+  }
+  
+  .dark .bg-teal-500,
+  .dark .bg-teal-600 {
+    background-color: rgb(13 148 136);
+    border-color: rgb(15 118 110);
+  }
+  
+  .dark .bg-indigo-50,
+  .dark .bg-purple-50 {
+    background-color: rgb(30 27 75 / 0.3);
+    border-color: rgb(55 48 163 / 0.5);
+  }
+  
+  .dark .text-indigo-700,
+  .dark .text-purple-700 {
+    color: rgb(196 181 253);
+  }
+  
+  .dark .text-emerald-700 {
+    color: rgb(110 231 183);
+  }
+  
+  .dark .text-red-700 {
+    color: rgb(252 165 165);
+  }
+  
+  /* Dark mode для текстів */
+  .dark .text-gray-900 {
+    color: rgb(243 244 246);
+  }
+  
+  .dark .text-gray-800 {
+    color: rgb(229 231 235);
+  }
+  
+  .dark .text-gray-700 {
+    color: rgb(209 213 219);
+  }
+  
+  .dark .text-gray-600 {
+    color: rgb(156 163 175);
+  }
+  
+  .dark .text-gray-500 {
+    color: rgb(107 114 128);
+  }
+  
+  /* Dark mode для фонів */
+  .dark .bg-white {
+    background-color: rgb(31 41 55);
+  }
+  
+  .dark .bg-gray-50 {
+    background-color: rgb(31 41 55);
+  }
+  
+  .dark .bg-gray-100 {
+    background-color: rgb(55 65 81);
+  }
+  
+  .dark .bg-gray-200 {
+    background-color: rgb(75 85 99);
+  }
+  
+  .dark .bg-primary-50 {
+    background-color: rgb(30 58 138 / 0.3);
+  }
+  
+  .dark .bg-primary-100 {
+    background-color: rgb(30 58 138 / 0.5);
+  }
+  
+  .dark .text-primary-700 {
+    color: rgb(147 197 253);
+  }
+  
+  .dark .text-primary-600 {
+    color: rgb(96 165 250);
+  }
+  
+  .dark .border-gray-200 {
+    border-color: rgb(55 65 81);
+  }
+  
+  .dark .border-gray-100 {
+    border-color: rgb(31 41 55);
+  }
+  
+  /* Dark mode для градієнтів */
+  .dark .bg-gradient-to-br.from-indigo-50,
+  .dark .bg-gradient-to-br.from-purple-50 {
+    background: linear-gradient(to bottom right, rgb(30 27 75 / 0.3), rgb(88 28 135 / 0.3));
+  }
+  
+  .dark .bg-gradient-to-r.from-yellow-50,
+  .dark .bg-gradient-to-r.from-orange-50 {
+    background: linear-gradient(to right, rgb(113 63 18 / 0.3), rgb(154 52 18 / 0.3));
+  }
+  
+  /* Dark mode для кольорових фонів */
+  .dark .bg-red-50,
+  .dark .bg-amber-50,
+  .dark .bg-blue-50,
+  .dark .bg-yellow-50 {
+    background-color: rgb(31 41 55);
+  }
+  
+  .dark .bg-red-100,
+  .dark .bg-amber-100 {
+    background-color: rgb(127 29 29 / 0.3);
+  }
+  
+  .dark .border-red-200,
+  .dark .border-yellow-200,
+  .dark .border-blue-200 {
+    border-color: rgb(55 65 81);
+  }
+  
+  .dark .border-red-500,
+  .dark .border-amber-500,
+  .dark .border-blue-500,
+  .dark .border-yellow-500 {
+    border-color: rgb(75 85 99);
+  }
+  
+  /* Dark mode для hover ефектів */
+  .dark .hover\:bg-gray-50:hover {
+    background-color: rgb(31 41 55);
+  }
+  
+  .dark .hover\:bg-gray-100:hover {
+    background-color: rgb(55 65 81);
+  }
+  
+  .dark .hover\:bg-gray-200:hover {
+    background-color: rgb(75 85 99);
   }
   
   .btn {
@@ -36,8 +199,16 @@
     @apply bg-gray-100 text-gray-700 hover:bg-gray-200;
   }
   
+  .dark .btn-secondary {
+    @apply bg-gray-700 text-gray-200 hover:bg-gray-600;
+  }
+  
   .input {
-    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all;
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white text-gray-900;
+  }
+  
+  .dark .input {
+    @apply bg-gray-800 border-gray-600 text-gray-100;
   }
   
   .table {
@@ -48,12 +219,93 @@
     @apply px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider bg-gray-50 border-b border-gray-200;
   }
   
+  .dark .table th {
+    @apply text-gray-300 bg-gray-800 border-gray-700;
+  }
+  
   .table td {
     @apply px-4 py-3 text-sm text-gray-700 border-b border-gray-100;
   }
   
+  .dark .table td {
+    @apply text-gray-200 border-gray-700;
+  }
+  
   .table tr:hover {
     @apply bg-gray-50;
+  }
+  
+  .dark .table tr:hover {
+    @apply bg-gray-800;
+  }
+  
+  /* Dark mode для модальних вікон */
+  .dark .bg-white {
+    @apply bg-gray-800 text-gray-100;
+  }
+  
+  /* Dark mode для текстів */
+  .dark .text-gray-900 {
+    color: rgb(243 244 246);
+  }
+  
+  .dark .text-gray-800 {
+    color: rgb(229 231 235);
+  }
+  
+  .dark .text-gray-700 {
+    color: rgb(209 213 219);
+  }
+  
+  /* Dark mode для фонів */
+  .dark .bg-white {
+    background-color: rgb(31 41 55);
+  }
+  
+  .dark .bg-gray-200 {
+    background-color: rgb(75 85 99);
+  }
+  
+  /* Dark mode для градієнтів */
+  .dark .bg-gradient-to-br.from-indigo-50,
+  .dark .bg-gradient-to-br.from-purple-50 {
+    background: linear-gradient(to bottom right, rgb(30 27 75 / 0.3), rgb(88 28 135 / 0.3));
+  }
+  
+  .dark .bg-gradient-to-r.from-yellow-50,
+  .dark .bg-gradient-to-r.from-orange-50 {
+    background: linear-gradient(to right, rgb(113 63 18 / 0.3), rgb(154 52 18 / 0.3));
+  }
+  
+  /* Dark mode для кольорових фонів */
+  .dark .bg-red-50,
+  .dark .dark .bg-amber-50,
+  .dark .bg-blue-50,
+  .dark .bg-yellow-50 {
+    background-color: rgb(31 41 55);
+  }
+  
+  .dark .bg-red-100,
+  .dark .bg-amber-100 {
+    background-color: rgb(127 29 29 / 0.3);
+  }
+  
+  .dark .border-red-200,
+  .dark .border-yellow-200,
+  .dark .border-blue-200 {
+    border-color: rgb(55 65 81);
+  }
+  
+  .dark .border-red-500,
+  .dark .border-amber-500,
+  .dark .border-blue-500,
+  .dark .border-yellow-500 {
+    border-color: rgb(75 85 99);
+  }
+  
+  /* Dark mode для кнопок періодів */
+  .dark .hover\:bg-gray-200:hover {
+    background-color: rgb(75 85 99);
   }
 }
 
@@ -88,4 +340,59 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Dark mode transitions */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Page transitions */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    to right,
+    #f0f0f0 0%,
+    #e0e0e0 20%,
+    #f0f0f0 40%,
+    #f0f0f0 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+.dark .animate-shimmer {
+  background: linear-gradient(
+    to right,
+    #374151 0%,
+    #4b5563 20%,
+    #374151 40%,
+    #374151 100%
+  );
+  background-size: 1000px 100%;
+}
+
+.page-enter {
+  animation: fadeIn 0.3s ease-out;
 }

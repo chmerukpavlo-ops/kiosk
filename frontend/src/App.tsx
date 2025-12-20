@@ -1,17 +1,25 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Login } from './pages/Login';
 import { AdminDashboard } from './pages/admin/Dashboard';
 import { Products } from './pages/admin/Products';
 import { Sales } from './pages/admin/Sales';
 import { Kiosks } from './pages/admin/Kiosks';
 import { Employees } from './pages/admin/Employees';
+import { EmployeeProfile } from './pages/admin/EmployeeProfile';
 import { Schedule } from './pages/admin/Schedule';
 import { Expenses } from './pages/admin/Expenses';
+import { Stock } from './pages/admin/Stock';
+import { Inventory } from './pages/admin/Inventory';
+import { Customers } from './pages/admin/Customers';
 import { SellerDashboard } from './pages/seller/Dashboard';
+import { Gamification } from './pages/seller/Gamification';
 import { Layout } from './components/Layout';
 import { ToastContainer } from './components/Toast';
+import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 
 function AppRoutes() {
   const { user } = useAuth();
@@ -73,6 +81,16 @@ function AppRoutes() {
         }
       />
       <Route
+        path="/employees/:id"
+        element={
+          <ProtectedRoute requireAdmin>
+            <Layout>
+              <EmployeeProfile />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/schedule"
         element={
           <ProtectedRoute requireAdmin>
@@ -92,23 +110,72 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/stock"
+        element={
+          <ProtectedRoute requireAdmin>
+            <Layout>
+              <Stock />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/inventory"
+        element={
+          <ProtectedRoute requireAdmin>
+            <Layout>
+              <Inventory />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/customers"
+        element={
+          <ProtectedRoute requireAdmin>
+            <Layout>
+              <Customers />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      
+      {/* Seller routes */}
+      <Route
+        path="/gamification"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Gamification />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true,
-        }}
-      >
-        <AppRoutes />
-        <ToastContainer />
-      </BrowserRouter>
-    </AuthProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <AuthProvider>
+          <BrowserRouter
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+            }}
+          >
+            <ErrorBoundary>
+              <AppRoutes />
+              <ToastContainer />
+              <PWAInstallPrompt />
+            </ErrorBoundary>
+          </BrowserRouter>
+        </AuthProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 

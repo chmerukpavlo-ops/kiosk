@@ -1,6 +1,8 @@
 import express from 'express';
 import { query } from '../db/init.js';
 import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth.js';
+import { handleStockAfterProductChange } from '../services/stock.js';
+import axios from 'axios';
 
 const router = express.Router();
 
@@ -56,7 +58,15 @@ router.get('/', authenticate, async (req: AuthRequest, res: express.Response) =>
       paramCount += 2;
     }
 
-    sql += ' ORDER BY s.created_at DESC LIMIT 1000';
+    if (req.query.search) {
+      sql += ` AND (p.name ILIKE $${paramCount} OR u.full_name ILIKE $${paramCount})`;
+      params.push(`%${req.query.search}%`);
+      paramCount++;
+    }
+
+    const limit = req.query.limit ? parseInt(String(req.query.limit)) : 1000;
+    sql += ` ORDER BY s.created_at DESC LIMIT $${paramCount}`;
+    params.push(limit);
 
     const result = await query(sql, params);
     res.json(result.rows);
@@ -69,12 +79,18 @@ router.get('/', authenticate, async (req: AuthRequest, res: express.Response) =>
 // Create sale (sell product)
 router.post('/', authenticate, async (req: AuthRequest, res: express.Response) => {
   try {
-    const { product_id, quantity = 1 } = req.body;
+    const { product_id, quantity = 1, customer_id } = req.body;
     const seller_id = req.user!.id;
     const isAdmin = req.user?.role === 'admin';
 
     if (!product_id) {
       return res.status(400).json({ error: 'ID товару обов\'язковий' });
+    }
+
+    // Validate quantity
+    const quantityNum = Number(quantity);
+    if (isNaN(quantityNum) || quantityNum <= 0 || !Number.isInteger(quantityNum)) {
+      return res.status(400).json({ error: 'Кількість повинна бути додатнім цілим числом' });
     }
 
     // Get product
@@ -95,16 +111,46 @@ router.post('/', authenticate, async (req: AuthRequest, res: express.Response) =
     }
 
     // Check quantity
-    if (product.quantity < quantity) {
+    if (product.quantity < quantityNum) {
       return res.status(400).json({ error: 'Недостатня кількість товару' });
+    }
+
+    // Validate customer_id if provided
+    if (customer_id) {
+      const customerIdNum = Number(customer_id);
+      if (isNaN(customerIdNum)) {
+        return res.status(400).json({ error: 'Невірний ID клієнта' });
+      }
+      const customerCheck = await query('SELECT id FROM customers WHERE id = $1', [customerIdNum]);
+      if (customerCheck.rows.length === 0) {
+        return res.status(400).json({ error: 'Клієнт не знайдено' });
+      }
     }
 
     // Get seller's kiosk
     const userResult = await query('SELECT kiosk_id FROM users WHERE id = $1', [seller_id]);
     const kiosk_id = userResult.rows[0]?.kiosk_id || product.kiosk_id;
 
-    // Calculate total price
-    const totalPrice = product.price * quantity;
+    // Calculate total price with discount
+    let finalPrice = parseFloat(String(product.price || 0));
+    const discountPercent = parseFloat(String(product.discount_percent || 0));
+    const discountStartDate = product.discount_start_date;
+    const discountEndDate = product.discount_end_date;
+    
+    // Check if discount is active
+    const isDiscountActive = discountPercent > 0 &&
+      (!discountStartDate || new Date(discountStartDate) <= new Date()) &&
+      (!discountEndDate || new Date(discountEndDate) >= new Date());
+    
+    if (isDiscountActive) {
+      finalPrice = finalPrice * (1 - discountPercent / 100);
+    }
+    
+    const totalPrice = finalPrice * quantityNum;
+    
+    if (isNaN(totalPrice) || totalPrice < 0) {
+      return res.status(400).json({ error: 'Невірна ціна товару' });
+    }
 
     // Start transaction
     await query('BEGIN');
@@ -112,14 +158,14 @@ router.post('/', authenticate, async (req: AuthRequest, res: express.Response) =
     try {
       // Create sale
       const saleResult = await query(
-        `INSERT INTO sales (product_id, seller_id, kiosk_id, quantity, price)
-         VALUES ($1, $2, $3, $4, $5)
+        `INSERT INTO sales (product_id, seller_id, kiosk_id, quantity, price, customer_id)
+         VALUES ($1, $2, $3, $4, $5, $6)
          RETURNING *`,
-        [product_id, seller_id, kiosk_id, quantity, totalPrice]
+        [product_id, seller_id, kiosk_id, quantityNum, totalPrice, customer_id || null]
       );
 
       // Update product quantity
-      const newQuantity = product.quantity - quantity;
+      const newQuantity = product.quantity - quantityNum;
       await query(
         `UPDATE products 
          SET quantity = $1, 
@@ -130,6 +176,31 @@ router.post('/', authenticate, async (req: AuthRequest, res: express.Response) =
       );
 
       await query('COMMIT');
+
+      // Update customer stats if customer_id provided
+      if (customer_id) {
+        try {
+          const { updateCustomerStats } = await import('./customers.js');
+          await updateCustomerStats(Number(customer_id), totalPrice);
+        } catch (e) {
+          console.error('Update customer stats failed:', e);
+        }
+      }
+
+      // Low-stock alerts + auto reorder draft update
+      try {
+        await handleStockAfterProductChange({ product_id: Number(product_id) });
+      } catch (e) {
+        console.error('Stock check after sale failed:', e);
+      }
+
+      // Check achievements for seller
+      try {
+        const { checkAchievements } = await import('./gamification.js');
+        await checkAchievements(seller_id);
+      } catch (e) {
+        console.error('Check achievements failed:', e);
+      }
 
       // Get sale with details
       const fullSaleResult = await query(
@@ -215,6 +286,13 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res: express.Respon
 
       await query('COMMIT');
 
+      // Low-stock alerts + auto reorder draft update (after cancel)
+      try {
+        await handleStockAfterProductChange({ product_id: Number(sale.product_id) });
+      } catch (e) {
+        console.error('Stock check after cancel failed:', e);
+      }
+
       res.json({ message: 'Продаж успішно відмінено', sale });
     } catch (error) {
       await query('ROLLBACK');
@@ -276,6 +354,175 @@ router.get('/stats', authenticate, async (req: AuthRequest, res: express.Respons
     res.status(500).json({ error: 'Помилка сервера' });
   }
 });
+
+// Send receipt via Telegram
+router.post('/:id/send-telegram', authenticate, async (req: AuthRequest, res: express.Response) => {
+  try {
+    const saleId = parseInt(req.params.id);
+    
+    if (isNaN(saleId)) {
+      return res.status(400).json({ error: 'Невірний ID продажу' });
+    }
+    
+    const { telegram_chat_id, telegram_username } = req.body;
+
+    if (!telegram_chat_id && !telegram_username) {
+      return res.status(400).json({ error: 'Telegram chat_id або username обов\'язковий' });
+    }
+
+    const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN;
+    if (!telegramBotToken) {
+      console.error('TELEGRAM_BOT_TOKEN не встановлено в змінних оточення');
+      return res.status(500).json({ 
+        error: 'Telegram бот не налаштований. Додайте TELEGRAM_BOT_TOKEN в backend/.env' 
+      });
+    }
+
+    // Get sale details
+    const saleResult = await query(
+      `SELECT s.*, 
+              p.name as product_name,
+              u.full_name as seller_name,
+              k.name as kiosk_name
+       FROM sales s
+       LEFT JOIN products p ON s.product_id = p.id
+       LEFT JOIN users u ON s.seller_id = u.id
+       LEFT JOIN kiosks k ON s.kiosk_id = k.id
+       WHERE s.id = $1`,
+      [saleId]
+    );
+
+    if (saleResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Продаж не знайдено' });
+    }
+
+    const sale = saleResult.rows[0];
+
+    // Format receipt as text
+    const receiptText = formatReceiptText(sale);
+
+    // Determine chat_id
+    let chatId: string | number = telegram_chat_id;
+    
+    // If username provided, try to resolve it (requires user to start bot first)
+    if (telegram_username && !chatId) {
+      // For username, we need user to start bot first and send a message
+      // Remove @ if present and use username directly
+      const cleanUsername = telegram_username.replace('@', '').trim();
+      chatId = cleanUsername;
+    }
+
+    // Validate chat_id format
+    if (!chatId) {
+      return res.status(400).json({ error: 'Не вдалося визначити chat_id або username' });
+    }
+
+    // Send message via Telegram Bot API
+    try {
+      const telegramApiUrl = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
+      
+      // Debug log (only in development)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Sending Telegram message:', {
+          chatId: chatId,
+          textLength: receiptText.length,
+          hasToken: !!telegramBotToken,
+        });
+      }
+      
+      const response = await axios.post(telegramApiUrl, {
+        chat_id: chatId,
+        text: receiptText,
+        parse_mode: 'HTML',
+      }, {
+        timeout: 10000, // 10 seconds timeout
+      });
+
+      res.json({ 
+        success: true, 
+        message: 'Чек надіслано в Telegram',
+        telegram_response: response.data 
+      });
+    } catch (telegramError: any) {
+      console.error('Telegram API error:', {
+        status: telegramError.response?.status,
+        data: telegramError.response?.data,
+        message: telegramError.message,
+        chatId: chatId,
+      });
+      
+      let errorMessage = 'Помилка надсилання в Telegram';
+      
+      if (telegramError.response?.data) {
+        const tgError = telegramError.response.data;
+        if (tgError.description) {
+          errorMessage = tgError.description;
+          
+          // Переклади помилок Telegram на українську
+          if (tgError.description.includes('chat not found')) {
+            errorMessage = 'Чат не знайдено. Переконайтеся, що користувач написав боту спочатку.';
+          } else if (tgError.description.includes('user not found')) {
+            errorMessage = 'Користувач не знайдено. Перевірте правильність username або chat_id.';
+          } else if (tgError.description.includes('bot was blocked')) {
+            errorMessage = 'Бот заблоковано користувачем.';
+          } else if (tgError.description.includes('invalid chat_id')) {
+            errorMessage = 'Невірний chat_id або username.';
+          }
+        }
+      } else if (telegramError.message) {
+        errorMessage = telegramError.message;
+      }
+      
+      // Логуємо детальну інформацію для діагностики
+      console.error('Full Telegram error details:', JSON.stringify({
+        error: errorMessage,
+        telegramError: telegramError.response?.data,
+        chatId: chatId,
+        chatIdType: typeof chatId,
+      }, null, 2));
+      
+      return res.status(400).json({ 
+        error: errorMessage,
+        details: telegramError.response?.data || null,
+        chat_id_used: chatId
+      });
+    }
+  } catch (error: any) {
+    console.error('Send telegram receipt error:', error);
+    res.status(500).json({ error: 'Помилка сервера' });
+  }
+});
+
+function formatReceiptText(sale: any): string {
+  const date = new Date(sale.created_at);
+  const formattedDate = date.toLocaleString('uk-UA', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  return `
+🧾 <b>ЧЕК №${sale.id}</b>
+
+🏪 <b>${sale.kiosk_name || 'КІОСК'}</b>
+📅 ${formattedDate}
+
+━━━━━━━━━━━━━━━━━━
+📦 <b>${sale.product_name || 'Товар'}</b>
+   Кількість: ${sale.quantity} шт.
+   Ціна: ${parseFloat(sale.price).toFixed(2)} ₴
+━━━━━━━━━━━━━━━━━━
+
+💰 <b>ВСЬОГО: ${parseFloat(sale.price).toFixed(2)} ₴</b>
+
+👤 Продавець: ${sale.seller_name || '—'}
+
+━━━━━━━━━━━━━━━━━━
+✅ Дякуємо за покупку!
+  `.trim();
+}
 
 export default router;
 

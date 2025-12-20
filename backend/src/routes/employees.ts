@@ -8,14 +8,23 @@ const router = express.Router();
 // Get all employees
 router.get('/', authenticate, requireAdmin, async (req: express.Request, res: express.Response) => {
   try {
-    const result = await query(
-      `SELECT u.id, u.username, u.full_name, u.role, u.kiosk_id, k.name as kiosk_name,
+    const { search } = req.query;
+    
+    let sql = `SELECT u.id, u.username, u.full_name, u.role, u.kiosk_id, k.name as kiosk_name,
               (SELECT COUNT(*) FROM sales WHERE seller_id = u.id AND DATE(created_at) = CURRENT_DATE) as sales_today
        FROM users u
        LEFT JOIN kiosks k ON u.kiosk_id = k.id
-       WHERE u.role = 'seller'
-       ORDER BY u.full_name`
-    );
+       WHERE u.role = 'seller'`;
+    
+    const params: any[] = [];
+    if (search) {
+      sql += ` AND (u.full_name ILIKE $1 OR u.username ILIKE $1)`;
+      params.push(`%${search}%`);
+    }
+    
+    sql += ' ORDER BY u.full_name';
+    
+    const result = await query(sql, params.length > 0 ? params : undefined);
     res.json(result.rows);
   } catch (error) {
     console.error('Get employees error:', error);

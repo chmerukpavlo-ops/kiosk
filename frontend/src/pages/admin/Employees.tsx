@@ -124,10 +124,10 @@ export function Employees() {
                     <td>
                       <div className="flex space-x-2">
                         <Link
-                          to={`/sales?seller_id=${String(employee.id)}`}
-                          className="text-primary-600 hover:text-primary-700 text-sm"
+                          to={`/employees/${employee.id}`}
+                          className="text-primary-600 hover:text-primary-700 text-sm font-medium"
                         >
-                          Статистика
+                          Профіль
                         </Link>
                         <button
                           onClick={() => {
