@@ -22,8 +22,10 @@ export function Login() {
       console.error('Login error:', err);
       
       // Детальна обробка помилок
-      if (err.code === 'ECONNREFUSED' || err.message?.includes('Network Error')) {
-        setError('Не вдалося підключитися до сервера. Перевірте, чи запущений backend на порту 3001');
+      if (err.isTimeout) {
+        setError(err.message || 'Таймаут запиту. Сервер не відповідає вчасно. Спробуйте ще раз.');
+      } else if (err.isNetworkError || err.code === 'ECONNREFUSED' || err.message?.includes('Network Error')) {
+        setError(err.message || 'Не вдалося підключитися до сервера. Перевірте, чи запущений backend.');
       } else if (err.response?.status === 401) {
         setError(err.response?.data?.error || 'Невірний логін або пароль');
       } else if (err.response?.status === 500) {
