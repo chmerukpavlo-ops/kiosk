@@ -209,7 +209,7 @@ router.post('/', authenticate, requireAdmin, async (req: AuthRequest, res: expre
 });
 
 // Update product (admin only)
-router.put('/:id', authenticate, requireAdmin, async (req: express.Request, res: express.Response) => {
+router.put('/:id', authenticate, requireAdmin, async (req: AuthRequest, res: express.Response) => {
   try {
     const { name, brand, type, price, purchase_price, quantity, kiosk_id, status,
             discount_percent, discount_start_date, discount_end_date,

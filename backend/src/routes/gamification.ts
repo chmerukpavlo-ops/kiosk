@@ -1,11 +1,11 @@
-import { Router } from 'express';
-import { authenticate } from '../middleware/auth';
+import { Router, Response } from 'express';
+import { authenticate, AuthRequest } from '../middleware/auth';
 import { query } from '../db/init';
 
 const router = Router();
 
 // Get user achievements and stats
-router.get('/achievements', authenticate, async (req, res) => {
+router.get('/achievements', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -79,7 +79,7 @@ router.get('/achievements', authenticate, async (req, res) => {
 });
 
 // Get leaderboard
-router.get('/leaderboard', authenticate, async (req, res) => {
+router.get('/leaderboard', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const period = req.query.period || 'today'; // today, week, month
     let dateFilter = '';
@@ -118,7 +118,7 @@ router.get('/leaderboard', authenticate, async (req, res) => {
 });
 
 // Set daily goal
-router.post('/daily-goal', authenticate, async (req, res) => {
+router.post('/daily-goal', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
