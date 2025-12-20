@@ -23,14 +23,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('🔐 AuthProvider: Checking authentication...');
     const token = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
     
     if (token && savedUser) {
       try {
-        setUser(JSON.parse(savedUser));
+        const parsedUser = JSON.parse(savedUser);
+        console.log('👤 Found cached user:', parsedUser.username);
+        setUser(parsedUser);
       } catch (e) {
-        console.error('Failed to parse saved user:', e);
+        console.error('❌ Failed to parse saved user:', e);
         localStorage.removeItem('user');
         localStorage.removeItem('token');
         setLoading(false);
@@ -40,31 +43,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Verify token with timeout
       const timeoutId = setTimeout(() => {
         setLoading(false);
-        console.warn('API request timeout - using cached user');
-      }, 5000); // 5 second timeout
+        console.warn('⏱️ API request timeout - using cached user');
+      }, 10000); // 10 second timeout (increased for production)
       
+      console.log('🔄 Verifying token with API...');
       api.get('/auth/me')
         .then((res) => {
           clearTimeout(timeoutId);
+          console.log('✅ Token verified, user:', res.data.username);
           setUser(res.data);
           localStorage.setItem('user', JSON.stringify(res.data));
         })
-        .catch((error) => {
+        .catch((err) => {
           clearTimeout(timeoutId);
-          console.error('Failed to verify token:', error);
+          console.error('❌ Token verification failed:', err.message || err);
+          if (err.response) {
+            console.error('Response status:', err.response.status);
+            console.error('Response data:', err.response.data);
+          }
           // Don't clear user immediately - let them try to use the app
           // If API fails, they'll be redirected to login on next request
-          if (error.response?.status === 401) {
+          if (err.response?.status === 401) {
+            console.log('🔓 401 Unauthorized - clearing auth data');
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             setUser(null);
           }
-        })
-        .finally(() => {
-          clearTimeout(timeoutId);
           setLoading(false);
         });
     } else {
+      console.log('ℹ️ No token found, user not authenticated');
       setLoading(false);
     }
   }, []);

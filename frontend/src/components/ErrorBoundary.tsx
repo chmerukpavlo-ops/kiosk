@@ -20,20 +20,31 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo);
+    console.error('❌ ErrorBoundary caught error:', error);
+    console.error('Error details:', errorInfo);
+    console.error('Error stack:', error.stack);
   }
 
   public render() {
     if (this.state.hasError) {
+      const errorMessage = this.state.error?.message || '';
+      const isExtensionError = errorMessage.includes('solana') || 
+                              errorMessage.includes('chrome-extension') ||
+                              errorMessage.includes('moz-extension');
+      
       return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
           <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center">
             <div className="text-6xl mb-4">⚠️</div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Щось пішло не так</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              {isExtensionError ? 'Конфлікт з розширенням браузера' : 'Щось пішло не так'}
+            </h1>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Вибачте за незручності. Сталася неочікувана помилка.
+              {isExtensionError 
+                ? 'Розширення браузера (наприклад, Solana) викликало помилку. Спробуйте вимкнути розширення і перезавантажити сторінку.'
+                : 'Вибачте за незручності. Сталася неочікувана помилка.'}
             </p>
-            {this.state.error && (
+            {this.state.error && !isExtensionError && (
               <details className="text-left mb-4">
                 <summary className="cursor-pointer text-sm text-gray-500 dark:text-gray-400 mb-2">
                   Деталі помилки

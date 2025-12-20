@@ -10,10 +10,8 @@ const apiBaseURL = import.meta.env.VITE_API_URL
         return '/api'; // Fallback, але не працюватиме
       })();
 
-// Log API URL for debugging
-if (import.meta.env.DEV) {
-  console.log('API Base URL:', apiBaseURL);
-}
+// Log API URL for debugging (always)
+console.log('🌐 API Base URL:', apiBaseURL);
 
 const api = axios.create({
   baseURL: apiBaseURL,

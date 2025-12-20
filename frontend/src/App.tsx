@@ -160,8 +160,11 @@ function AppRoutes() {
 function App() {
   // Check for critical errors on mount
   useEffect(() => {
+    console.log('📱 App component mounted');
     if (!import.meta.env.VITE_API_URL && !import.meta.env.DEV) {
       console.error('⚠️ VITE_API_URL не встановлено! Перевірте Environment Variables в Vercel.');
+    } else {
+      console.log('✅ VITE_API_URL:', import.meta.env.VITE_API_URL || 'using /api (dev mode)');
     }
   }, []);
 

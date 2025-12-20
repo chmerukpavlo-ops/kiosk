@@ -11,6 +11,30 @@
     <meta name="apple-mobile-web-app-title" content="Кіоск" />
     <link rel="apple-touch-icon" href="/icon.svg" />
     <title>Система обліку кіосків</title>
+    <script>
+      // Захист від конфліктів з розширеннями браузера
+      (function() {
+        // Ізолюємо глобальний scope
+        const originalError = window.onerror;
+        window.onerror = function(msg, url, line, col, error) {
+          // Ігноруємо помилки від розширень браузера
+          if (msg && typeof msg === 'string' && (
+            msg.includes('solana') || 
+            msg.includes('chrome-extension') || 
+            msg.includes('moz-extension') ||
+            url && (url.includes('chrome-extension') || url.includes('moz-extension'))
+          )) {
+            console.warn('⚠️ Ignoring browser extension error:', msg);
+            return true; // Пригнічуємо помилку
+          }
+          // Для інших помилок викликаємо оригінальний обробник
+          if (originalError) {
+            return originalError.apply(this, arguments);
+          }
+          return false;
+        };
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
