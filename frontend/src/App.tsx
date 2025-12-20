@@ -172,12 +172,7 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider>
         <AuthProvider>
-          <BrowserRouter
-            future={{
-              v7_startTransition: true,
-              v7_relativeSplatPath: true,
-            }}
-          >
+          <BrowserRouter>
             <ErrorBoundary>
               <AppRoutes />
               <ToastContainer />

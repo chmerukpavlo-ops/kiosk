@@ -12,12 +12,26 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => {
+  // Функція для визначення поточної теми
+  const getInitialTheme = (): Theme => {
+    if (typeof window === 'undefined') return 'system';
     const saved = localStorage.getItem('theme');
     return (saved as Theme) || 'system';
-  });
+  };
 
-  const [actualTheme, setActualTheme] = useState<'light' | 'dark'>('light');
+  const getResolvedTheme = (themeValue: Theme): 'light' | 'dark' => {
+    if (themeValue === 'system') {
+      if (typeof window === 'undefined') return 'light';
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      return systemPrefersDark ? 'dark' : 'light';
+    }
+    return themeValue;
+  };
+
+  const [theme, setThemeState] = useState<Theme>(getInitialTheme);
+  const [actualTheme, setActualTheme] = useState<'light' | 'dark'>(() => 
+    getResolvedTheme(getInitialTheme())
+  );
 
   useEffect(() => {
     const updateTheme = () => {
@@ -31,6 +45,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       }
 
       setActualTheme(resolvedTheme);
+      
       // Використовуємо classList для кращої сумісності
       if (resolvedTheme === 'dark') {
         document.documentElement.classList.add('dark');
@@ -40,8 +55,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         document.documentElement.classList.add('light');
       }
       
-      // Зберігаємо в localStorage для швидкого доступу
-      if (theme !== 'system') {
+      // Зберігаємо в localStorage завжди (включаючи 'system')
+      if (typeof window !== 'undefined') {
         localStorage.setItem('theme', theme);
       }
     };
