@@ -4,8 +4,26 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
+  resolve: {
+    dedupe: ['react', 'react-dom'],
+  },
+  build: {
+    commonjsOptions: {
+      include: [/node_modules/],
+      transformMixedEsModules: true,
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+        },
+      },
+    },
+  },
   plugins: [
-    react(),
+    react({
+      jsxRuntime: 'automatic',
+    }),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'icon.svg'],
@@ -31,7 +49,7 @@ export default defineConfig({
             short_name: 'Продажі',
             description: 'Швидкий доступ до панелі продавця',
             url: '/',
-            icons: [{ src: '/icon-192.png', sizes: '192x192' }]
+            icons: [{ src: '/icon.svg', sizes: 'any' }]
           }
         ]
       },
