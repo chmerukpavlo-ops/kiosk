@@ -10,8 +10,8 @@ const router = express.Router();
 router.get('/', authenticate, async (req: AuthRequest, res: express.Response) => {
   try {
     const { brand, type, minPrice, maxPrice, minQuantity, kiosk_id, search, status } = req.query;
-    const isAdmin = req.user?.role === 'admin';
-    const userKioskId = req.user?.kiosk_id;
+    const isAdmin = (req as any).user?.role === 'admin';
+    const userKioskId = (req as any).user?.kiosk_id;
 
     let sql = `SELECT p.*, k.name as kiosk_name,
       CASE 
@@ -135,7 +135,7 @@ router.post('/', authenticate, requireAdmin, async (req: AuthRequest, res: expre
     const { name, brand, type, price, purchase_price, quantity, kiosk_id, status, create_expense, 
             discount_percent, discount_start_date, discount_end_date,
             low_stock_threshold, target_stock_level, auto_reorder } = req.body;
-    const created_by = req.user!.id;
+    const created_by = (req as any).user!.id;
 
     if (!name || !price || kiosk_id === undefined) {
       return res.status(400).json({ error: 'Назва, ціна та ларьок обов\'язкові' });
@@ -330,7 +330,7 @@ router.put('/:id', authenticate, requireAdmin, async (req: AuthRequest, res: exp
     const updatedProduct = result.rows[0];
     
     // Логування дії
-    await logActionAfter(req.user?.id, {
+    await logActionAfter((req as any).user?.id, {
       actionType: 'update',
       entityType: 'product',
       entityId: Number(req.params.id),
@@ -363,7 +363,7 @@ router.put('/:id', authenticate, requireAdmin, async (req: AuthRequest, res: exp
 router.post('/bulk-import', authenticate, requireAdmin, async (req: AuthRequest, res: express.Response) => {
   try {
     const { products: productsToImport, create_expenses } = req.body;
-    const created_by = req.user!.id;
+    const created_by = (req as any).user!.id;
 
     if (!Array.isArray(productsToImport) || productsToImport.length === 0) {
       return res.status(400).json({ error: 'Список товарів обов\'язковий' });

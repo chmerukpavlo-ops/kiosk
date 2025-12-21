@@ -7,7 +7,7 @@ const router = Router();
 // Get user achievements and stats
 router.get('/achievements', authenticate, async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user?.id;
+    const userId = (req as any).user?.id;
     if (!userId) {
       return res.status(401).json({ error: 'Не авторизовано' });
     }
@@ -120,7 +120,7 @@ router.get('/leaderboard', authenticate, async (req: AuthRequest, res: Response)
 // Set daily goal
 router.post('/daily-goal', authenticate, async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user?.id;
+    const userId = (req as any).user?.id;
     if (!userId) {
       return res.status(401).json({ error: 'Не авторизовано' });
     }
