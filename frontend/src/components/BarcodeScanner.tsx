@@ -8,9 +8,12 @@ interface BarcodeScannerProps {
 
 export function BarcodeScanner({ onScan, onClose, isOpen }: BarcodeScannerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
   const streamRef = useRef<MediaStream | null>(null);
+  const scanIntervalRef = useRef<number | null>(null);
+  const barcodeDetectorRef = useRef<any>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -18,6 +21,10 @@ export function BarcodeScanner({ onScan, onClose, isOpen }: BarcodeScannerProps)
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
         streamRef.current = null;
+      }
+      if (scanIntervalRef.current) {
+        clearInterval(scanIntervalRef.current);
+        scanIntervalRef.current = null;
       }
       return;
     }
@@ -28,6 +35,18 @@ export function BarcodeScanner({ onScan, onClose, isOpen }: BarcodeScannerProps)
       try {
         setError(null);
         setScanning(true);
+
+        // Спробуємо використати BarcodeDetector API (Chrome, Edge)
+        if ('BarcodeDetector' in window) {
+          try {
+            // @ts-ignore - BarcodeDetector може бути не в типах
+            barcodeDetectorRef.current = new BarcodeDetector({
+              formats: ['qr_code', 'code_128', 'ean_13', 'ean_8', 'code_39', 'codabar']
+            });
+          } catch (e) {
+            console.warn('BarcodeDetector не підтримується:', e);
+          }
+        }
 
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
@@ -46,7 +65,10 @@ export function BarcodeScanner({ onScan, onClose, isOpen }: BarcodeScannerProps)
 
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          videoRef.current.play();
+          await videoRef.current.play();
+          
+          // Починаємо сканування QR-кодів та штрих-кодів
+          startScanning();
         }
       } catch (err: any) {
         if (mounted) {
@@ -54,6 +76,48 @@ export function BarcodeScanner({ onScan, onClose, isOpen }: BarcodeScannerProps)
           setScanning(false);
         }
       }
+    };
+
+    const startScanning = () => {
+      if (!videoRef.current || !canvasRef.current) return;
+
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d', { willReadFrequently: true });
+
+      if (!context) return;
+
+      const scan = async () => {
+        if (!video || video.readyState !== video.HAVE_ENOUGH_DATA || !mounted) return;
+
+        try {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          // Використовуємо BarcodeDetector API якщо доступний
+          if (barcodeDetectorRef.current) {
+            try {
+              const barcodes = await barcodeDetectorRef.current.detect(canvas);
+              if (barcodes && barcodes.length > 0) {
+                const detectedCode = barcodes[0].rawValue;
+                if (detectedCode) {
+                  onScan(detectedCode);
+                  return;
+                }
+              }
+            } catch (e) {
+              // Ігноруємо помилки детекції
+            }
+          }
+
+        } catch (e) {
+          // Ігноруємо помилки сканування
+        }
+      };
+
+      // Скануємо кожні 300мс
+      scanIntervalRef.current = window.setInterval(scan, 300);
     };
 
     startCamera();
@@ -64,8 +128,12 @@ export function BarcodeScanner({ onScan, onClose, isOpen }: BarcodeScannerProps)
         streamRef.current.getTracks().forEach(track => track.stop());
         streamRef.current = null;
       }
+      if (scanIntervalRef.current) {
+        clearInterval(scanIntervalRef.current);
+        scanIntervalRef.current = null;
+      }
     };
-  }, [isOpen]);
+  }, [isOpen, onScan]);
 
   // Обробка введення з клавіатури (для USB сканерів)
   useEffect(() => {
@@ -104,7 +172,7 @@ export function BarcodeScanner({ onScan, onClose, isOpen }: BarcodeScannerProps)
     <div className="fixed inset-0 bg-black bg-opacity-75 dark:bg-opacity-85 flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full shadow-xl">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold dark:text-gray-100">Сканування штрих-коду</h2>
+          <h2 className="text-xl font-bold dark:text-gray-100">Сканування штрих-коду / QR-коду</h2>
           <button
             onClick={onClose}
             className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-2xl"
@@ -134,6 +202,7 @@ export function BarcodeScanner({ onScan, onClose, isOpen }: BarcodeScannerProps)
                 playsInline
                 muted
               />
+              <canvas ref={canvasRef} className="hidden" />
               {scanning && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="border-2 border-blue-500 rounded-lg w-3/4 h-1/2" />
@@ -142,10 +211,10 @@ export function BarcodeScanner({ onScan, onClose, isOpen }: BarcodeScannerProps)
             </div>
             <div className="text-center">
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Наведіть камеру на штрих-код або введіть код вручну
+                Наведіть камеру на штрих-код або QR-код товару
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
-                USB сканери працюють автоматично
+                Підтримуються: QR-коди товарів, штрих-коди, USB сканери
               </p>
             </div>
           </div>

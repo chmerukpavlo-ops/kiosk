@@ -244,9 +244,57 @@ export function SellerDashboard() {
     }
   };
 
-  // Обробка сканування штрих-коду
+  // Обробка сканування штрих-коду або QR-коду
   const handleBarcodeScan = useCallback((barcode: string) => {
     if (!barcode || !data) return;
+
+    // Обробка QR-коду формату "product:123"
+    if (barcode.startsWith('product:')) {
+      const productIdStr = barcode.replace('product:', '');
+      const productId = parseInt(productIdStr);
+      if (!isNaN(productId)) {
+        const product = data.products.find(p => p.id === productId);
+        if (product && product.quantity > 0) {
+          // Додаємо до кошика
+          const existingItem = cart.find((item) => item.product_id === product.id);
+          if (existingItem) {
+            if (existingItem.quantity < product.quantity) {
+              setCart(
+                cart.map((item) =>
+                  item.product_id === product.id
+                    ? { ...item, quantity: item.quantity + 1 }
+                    : item
+                )
+              );
+            }
+          } else {
+            const finalPrice = (product.final_price && !isNaN(product.final_price)) 
+              ? product.final_price 
+              : parseFloat(String(product.price || 0));
+            
+            if (!isNaN(finalPrice) && finalPrice >= 0) {
+              setCart([
+                ...cart,
+                {
+                  product_id: product.id,
+                  name: product.name,
+                  price: finalPrice,
+                  quantity: 1,
+                  maxQuantity: product.quantity,
+                },
+              ]);
+            }
+          }
+          setSearchQuery('');
+          setShowBarcodeScanner(false);
+          toast.success(`Знайдено: ${product.name}`);
+          return;
+        } else {
+          toast.error('Товар не знайдено або закінчився');
+          return;
+        }
+      }
+    }
 
     // Шукаємо товар за ID (якщо штрих-код містить ID)
     const productId = parseInt(barcode);
