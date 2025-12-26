@@ -7,6 +7,7 @@ export function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [wakingUp, setWakingUp] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
