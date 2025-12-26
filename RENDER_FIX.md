@@ -22,9 +22,11 @@ Backend не запускається на Render з помилкою "Exited wi
 3. **PORT** - автоматично встановлюється з `render.yaml` (10000)
 
 #### Root Directory на Render:
-- Відкрийте Render Dashboard → ваш Web Service → Settings
-- Переконайтеся, що **Root Directory** встановлено на `backend`
-- Або залиште порожнім, якщо використовуєте `render.yaml`
+- **ВАЖЛИВО:** У `render.yaml` вже встановлено `rootDir: backend`
+- Якщо використовуєте Render Dashboard (без yaml):
+  - Відкрийте Render Dashboard → ваш Web Service → Settings
+  - Встановіть **Root Directory** на `backend`
+- Команди тепер виконуються безпосередньо в папці `backend`
 
 ### 3. Перезапустіть сервіс
 - Після встановлення `JWT_SECRET` натисніть "Manual Deploy" → "Deploy latest commit"
