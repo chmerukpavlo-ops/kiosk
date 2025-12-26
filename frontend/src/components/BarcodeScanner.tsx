@@ -193,7 +193,7 @@ export function BarcodeScanner({ onScan, onClose, isOpen }: BarcodeScannerProps)
               </p>
             </div>
           </div>
-        ) : !barcodeDetectorRef.current && 'BarcodeDetector' in window === false ? (
+        ) : !barcodeDetectorRef.current && !('BarcodeDetector' in window) ? (
           <div className="text-center py-8">
             <div className="text-yellow-600 dark:text-yellow-400 mb-4">ℹ️ QR-сканування</div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
