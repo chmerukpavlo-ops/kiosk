@@ -193,6 +193,16 @@ export function BarcodeScanner({ onScan, onClose, isOpen }: BarcodeScannerProps)
               </p>
             </div>
           </div>
+        ) : !barcodeDetectorRef.current && 'BarcodeDetector' in window === false ? (
+          <div className="text-center py-8">
+            <div className="text-yellow-600 dark:text-yellow-400 mb-4">ℹ️ QR-сканування</div>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Для сканування QR-кодів рекомендується використовувати Chrome або Edge
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">
+              USB сканери та введення вручну працюють у всіх браузерах
+            </p>
+          </div>
         ) : (
           <div className="space-y-4">
             <div className="relative bg-black rounded-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
