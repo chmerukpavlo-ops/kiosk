@@ -74,6 +74,7 @@ export function SellerDashboard() {
   const [customers, setCustomers] = useState<any[]>([]);
   const [showCustomerSelect, setShowCustomerSelect] = useState(false);
   const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
+  const [showStats, setShowStats] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const CACHE_DURATION = 30000; // 30 секунд кешування
 
