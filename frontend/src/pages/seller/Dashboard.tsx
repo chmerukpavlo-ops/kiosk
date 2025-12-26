@@ -4,6 +4,7 @@ import { toast } from '../../components/Toast';
 import { Receipt } from '../../components/Receipt';
 import { BarcodeScanner } from '../../components/BarcodeScanner';
 import { useAuth } from '../../context/AuthContext';
+import { SellerStats } from './SellerStats';
 
 interface SellerDashboardData {
   cards: {
@@ -429,6 +430,11 @@ export function SellerDashboard() {
     return <div className="text-center py-12">Помилка завантаження даних</div>;
   }
 
+  // Якщо показуємо статистику, рендеримо компонент статистики
+  if (showStats) {
+    return <SellerStats />;
+  }
+
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       {/* Header з картками */}
@@ -442,14 +448,27 @@ export function SellerDashboard() {
           </div>
 
           {/* Mobile controls */}
-          <div className="lg:hidden flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setIsStatsCollapsed((v) => !v)}
-              className="px-3 py-2 rounded-lg bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200"
+              onClick={() => setShowStats(!showStats)}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                showStats
+                  ? 'bg-primary-500 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+              }`}
             >
-              {isStatsCollapsed ? 'Статистика' : 'Згорнути'}
+              {showStats ? '📊 Продажі' : '📈 Статистика'}
             </button>
+            {!isMobileLayout && (
+              <button
+                type="button"
+                onClick={() => setIsStatsCollapsed((v) => !v)}
+                className="px-3 py-2 rounded-lg bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+              >
+                {isStatsCollapsed ? 'Статистика' : 'Згорнути'}
+              </button>
+            )}
           </div>
         </div>
 
