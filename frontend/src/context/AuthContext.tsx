@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import api from '../lib/api';
 
 interface User {
@@ -6,14 +6,14 @@ interface User {
   username: string;
   full_name: string;
   role: 'admin' | 'seller';
-  kiosk_id?: number;
+  kiosk_id: number | null;
 }
 
 interface AuthContextType {
   user: User | null;
+  loading: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
-  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,83 +22,78 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Verify token on mount
   useEffect(() => {
-    console.log('🔐 AuthProvider: Checking authentication...');
-    const token = localStorage.getItem('token');
-    const savedUser = localStorage.getItem('user');
-    
-    if (token && savedUser) {
-      try {
-        const parsedUser = JSON.parse(savedUser);
-        console.log('👤 Found cached user:', parsedUser.username);
-        setUser(parsedUser);
-      } catch (e) {
-        console.error('❌ Failed to parse saved user:', e);
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
+    const verifyToken = async () => {
+      const token = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+
+      if (!token) {
         setLoading(false);
         return;
       }
-      
-      // Verify token with timeout
-      const timeoutId = setTimeout(() => {
-        setLoading(false);
-        console.warn('⏱️ API request timeout - using cached user');
-      }, 5000); // 5 second timeout
-      
-      console.log('🔄 Verifying token with API...');
-      api.get('/auth/me')
-        .then((res) => {
-          clearTimeout(timeoutId);
-          console.log('✅ Token verified, user:', res.data.username);
-          setUser(res.data);
-          localStorage.setItem('user', JSON.stringify(res.data));
-          setLoading(false);
-        })
-        .catch((err) => {
-          clearTimeout(timeoutId);
-          console.error('❌ Token verification failed:', err.message || err);
-          if (err.response) {
-            console.error('Response status:', err.response.status);
-            console.error('Response data:', err.response.data);
-          } else {
-            console.error('No response from server - network error or CORS issue');
-            console.error('API Base URL:', import.meta.env.VITE_API_URL || 'NOT SET');
-          }
-          // Don't clear user immediately - let them try to use the app
-          // If API fails, they'll be redirected to login on next request
-          if (err.response?.status === 401) {
-            console.log('🔓 401 Unauthorized - clearing auth data');
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            setUser(null);
-          }
-          // Always set loading to false, even on error
-          setLoading(false);
+
+      // Set user from localStorage immediately for faster UI
+      if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (e) {
+          console.error('Failed to parse stored user:', e);
+        }
+      }
+
+      try {
+        // Verify token with backend
+        const response = await api.get('/auth/me', {
+          timeout: 10000, // 10 seconds for token verification
         });
-    } else {
-      console.log('ℹ️ No token found, user not authenticated');
-      setLoading(false);
-    }
+        setUser(response.data);
+        localStorage.setItem('user', JSON.stringify(response.data));
+      } catch (error: any) {
+        console.error('Token verification failed:', error);
+        // Clear invalid token
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setUser(null);
+        
+        // Only redirect if not already on login page
+        if (!window.location.pathname.includes('/login')) {
+          // Don't redirect during initial load to avoid flash
+          if (document.readyState === 'complete') {
+            window.location.href = '/login';
+          }
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    verifyToken();
   }, []);
 
   const login = async (username: string, password: string) => {
-    const response = await api.post('/auth/login', { username, password });
-    const { token, user: userData } = response.data;
-    
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
+    try {
+      const response = await api.post('/auth/login', { username, password });
+      const { token, user: userData } = response.data;
+
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+    } catch (error: any) {
+      console.error('Login error:', error);
+      throw error;
+    }
   };
 
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
+    window.location.href = '/login';
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
