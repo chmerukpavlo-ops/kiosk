@@ -2,6 +2,7 @@ import express from 'express';
 import { query } from '../db/init.js';
 import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth.js';
 import { handleStockAfterProductChange } from '../services/stock.js';
+import { broadcastSaleCreated, broadcastStatsUpdate } from '../services/websocket.js';
 import axios from 'axios';
 
 const router = express.Router();

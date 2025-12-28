@@ -98,5 +98,10 @@ api.interceptors.response.use(
   }
 );
 
+// Get token for WebSocket authentication
+export function getToken(): string | null {
+  return localStorage.getItem('token');
+}
+
 export default api;
 

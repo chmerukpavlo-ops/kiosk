@@ -20,7 +20,8 @@ import { format } from 'date-fns';
 import { uk } from 'date-fns/locale';
 import { toast } from '../../components/Toast';
 import { exportChartAsPNG, exportChartAsPDF } from '../../lib/chartExport';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
+import { connectWebSocket, onStatsUpdate, onSaleCreated } from '../../lib/websocket';
 
 interface DashboardData {
   cards: {

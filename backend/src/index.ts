@@ -1,7 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { createServer } from 'http';
 import { initDatabase } from './db/init.js';
+import { initWebSocket } from './services/websocket.js';
 import authRoutes from './routes/auth.js';
 import productsRoutes from './routes/products.js';
 import salesRoutes from './routes/sales.js';
@@ -25,6 +27,7 @@ import recommendationsRoutes from './routes/recommendations.js';
 dotenv.config();
 
 const app = express();
+const server = createServer(app);
 const PORT = parseInt(process.env.PORT || '3001', 10);
 
 // CORS configuration - дозволяємо всі джерела для простоти (в production обмежте!)
@@ -95,8 +98,12 @@ app.get('/api/health', (req, res) => {
 // Initialize database and start server
 initDatabase()
   .then(() => {
-    app.listen(PORT, '0.0.0.0', () => {
+    // Initialize WebSocket
+    initWebSocket(server);
+    
+    server.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
+      console.log(`📡 WebSocket server ready`);
     });
   })
   .catch((error) => {
