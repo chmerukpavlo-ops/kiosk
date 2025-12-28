@@ -133,7 +133,7 @@ router.get('/:id', authenticate, async (req: express.Request, res: express.Respo
 router.post('/', authenticate, requireAdmin, async (req: AuthRequest, res: express.Response) => {
   try {
     const { name, brand, type, price, purchase_price, quantity, kiosk_id, status, create_expense, 
-            discount_percent, discount_start_date, discount_end_date,
+            discount_percent, discount_start_date, discount_end_date, image_url,
             low_stock_threshold, target_stock_level, auto_reorder } = req.body;
     const created_by = (req as any).user!.id;
 
@@ -213,7 +213,7 @@ router.put('/:id', authenticate, requireAdmin, async (req: AuthRequest, res: exp
   try {
     const { name, brand, type, price, purchase_price, quantity, kiosk_id, status,
             discount_percent, discount_start_date, discount_end_date,
-            low_stock_threshold, target_stock_level, auto_reorder } = req.body;
+            low_stock_threshold, target_stock_level, auto_reorder, image_url } = req.body;
 
     // Normalize discount values: null/undefined/empty string -> null, otherwise parse as number
     // For update, we need to distinguish between "not provided" (undefined) and "set to null" (null)

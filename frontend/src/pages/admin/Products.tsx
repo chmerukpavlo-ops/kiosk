@@ -8,6 +8,7 @@ import { SkeletonTable } from '../../components/Skeleton';
 import { Tooltip } from '../../components/Tooltip';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { QRCodeModal } from '../../components/QRCodeModal';
+import { ImageUpload } from '../../components/ImageUpload';
 import { copyToClipboard, copyTableToClipboard, formatValueForCopy } from '../../lib/copyToClipboard';
 import { useAutoSave } from '../../lib/useAutoSave';
 
@@ -30,6 +31,7 @@ interface Product {
   low_stock_threshold?: number;
   target_stock_level?: number;
   auto_reorder?: boolean;
+  image_url?: string | null;
 }
 
 interface ImportProduct {
@@ -266,6 +268,7 @@ export function Products() {
       }
       setShowModal(false);
       setEditingProduct(null);
+      setProductImage(null);
       await loadProducts();
     } catch (error: any) {
       toast.error(formatErrorMessage(error));

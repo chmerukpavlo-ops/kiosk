@@ -127,6 +127,19 @@ export async function initDatabase() {
       END $$;
     `);
 
+    // Додати поле для зображення товару
+    await query(`
+      DO $$ 
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'products' AND column_name = 'image_url'
+        ) THEN
+          ALTER TABLE products ADD COLUMN image_url TEXT;
+        END IF;
+      END $$;
+    `);
+
     // Low-stock settings for products (thresholds + auto reorder)
     await query(`
       DO $$ 
