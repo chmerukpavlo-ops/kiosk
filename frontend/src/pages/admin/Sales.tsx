@@ -3,6 +3,7 @@ import api from '../../lib/api';
 import { format, startOfToday, subDays, startOfMonth, endOfMonth } from 'date-fns';
 import { uk } from 'date-fns/locale';
 import { toast } from '../../components/Toast';
+import { exportToExcel, formatCurrency, formatDate } from '../../lib/excelExport';
 
 interface Sale {
   id: number;
