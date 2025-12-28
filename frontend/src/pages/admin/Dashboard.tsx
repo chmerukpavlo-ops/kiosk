@@ -121,12 +121,40 @@ export function AdminDashboard() {
     loadRecommendations();
     loadNotifications();
     
+    // Connect WebSocket for real-time updates
+    connectWebSocket();
+    
+    // Subscribe to real-time events
+    const unsubscribeStats = onStatsUpdate((stats) => {
+      // Update cards with real-time stats
+      setData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          cards: {
+            ...prev.cards,
+            revenue_today: stats.revenue_today || prev.cards.revenue_today,
+          },
+        };
+      });
+    });
+    
+    const unsubscribeSales = onSaleCreated((sale) => {
+      // Reload data when new sale is created
+      loadData();
+      loadForecast();
+    });
+    
     // Оновлюємо нагадування кожні 5 хвилин
     const interval = setInterval(() => {
       loadNotifications();
     }, 5 * 60 * 1000); // 5 хвилин
     
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      unsubscribeStats();
+      unsubscribeSales();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
