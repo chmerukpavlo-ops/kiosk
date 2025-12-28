@@ -5,6 +5,8 @@ import { useTheme } from '../context/ThemeContext';
 import api from '../lib/api';
 import { toast } from './Toast';
 import { OfflineIndicator } from './OfflineIndicator';
+import { initOfflineStorage } from '../lib/offlineStorage';
+import { startAutoSync } from '../lib/offlineSync';
 
 interface LayoutProps {
   children: ReactNode;
@@ -30,6 +32,15 @@ export function Layout({ children }: LayoutProps) {
   }>({ products: [], sales: [], employees: [] });
   const [searchLoading, setSearchLoading] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Initialize offline storage and auto-sync
+  useEffect(() => {
+    initOfflineStorage().then(() => {
+      startAutoSync();
+    }).catch((error) => {
+      console.error('Failed to initialize offline storage:', error);
+    });
+  }, []);
 
   const handleLogout = () => {
     logout();
