@@ -5,7 +5,7 @@ interface ExcelColumn {
   key: string;
   label: string;
   width?: number;
-  format?: (value: any) => string;
+  format?: (value: any, item?: any) => string;
 }
 
 interface ExcelExportOptions {

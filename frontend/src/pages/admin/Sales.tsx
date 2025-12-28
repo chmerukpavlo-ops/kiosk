@@ -111,6 +111,53 @@ export function Sales() {
     }
   };
 
+  const handleExportExcel = async () => {
+    if (sales.length === 0) {
+      toast.error('Немає даних для експорту');
+      return;
+    }
+
+    try {
+      const columns = [
+        { key: 'id', label: 'ID', width: 10 },
+        { key: 'created_at', label: 'Дата', width: 20, format: formatDate },
+        { key: 'product_name', label: 'Товар', width: 30 },
+        { key: 'seller_name', label: 'Продавець', width: 25 },
+        { key: 'kiosk_name', label: 'Кіоск', width: 20 },
+        { key: 'quantity', label: 'Кількість', width: 12 },
+        { key: 'price', label: 'Ціна', width: 15, format: formatCurrency },
+      ];
+
+      // Filter columns based on exportColumns settings
+      const activeColumns = columns.filter((col) => {
+        const key = col.key as keyof typeof exportColumns;
+        return exportColumns[key] !== false;
+      });
+
+      // Prepare data with calculated totals
+      const dataWithTotals = sales.map((sale) => ({
+        ...sale,
+        total: parseFloat(String(sale.price || 0)) * (sale.quantity || 0),
+      }));
+
+      await exportToExcel({
+        filename: 'sales',
+        sheetName: 'Продажі',
+        columns: activeColumns,
+        data: dataWithTotals,
+        includeHeaders: true,
+        formatNumbers: true,
+        formatDates: true,
+      });
+
+      toast.success('Експорт у Excel завершено');
+      setShowExportModal(false);
+    } catch (error: any) {
+      console.error('Export error:', error);
+      toast.error('Помилка експорту: ' + (error.message || 'Невідома помилка'));
+    }
+  };
+
   const handleExportCSV = () => {
     if (sales.length === 0) {
       toast.error('Немає даних для експорту');
@@ -231,7 +278,7 @@ export function Sales() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Продажі</h1>
         <button onClick={() => setShowExportModal(true)} className="btn btn-primary">
-          📥 Експорт CSV
+          📥 Експорт Excel
         </button>
       </div>
 
@@ -472,10 +519,10 @@ export function Sales() {
                   Скасувати
                 </button>
                 <button
-                  onClick={handleExportCSV}
+                  onClick={handleExportExcel}
                   className="btn btn-primary flex-1"
                 >
-                  Експортувати
+                  Експортувати Excel
                 </button>
               </div>
             </div>
