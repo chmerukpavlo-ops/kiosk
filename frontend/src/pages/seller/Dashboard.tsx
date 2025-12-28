@@ -5,8 +5,8 @@ import { Receipt } from '../../components/Receipt';
 import { BarcodeScanner } from '../../components/BarcodeScanner';
 import { useAuth } from '../../context/AuthContext';
 import { SellerStats } from './SellerStats';
-import { saveSaleOffline, initOfflineStorage } from '../../lib/offlineStorage';
-import { isOnline, startAutoSync } from '../../lib/offlineSync';
+import { saveSaleOffline } from '../../lib/offlineStorage';
+import { isOnline } from '../../lib/offlineSync';
 
 interface SellerDashboardData {
   cards: {

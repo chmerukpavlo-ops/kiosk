@@ -161,6 +161,9 @@ export async function updateRetryCount(id: string, retryCount: number): Promise<
 
 // Get count of pending sales
 export async function getPendingSalesCount(): Promise<number> {
+  if (!db) {
+    await initOfflineStorage();
+  }
   const sales = await getPendingSales();
   return sales.length;
 }

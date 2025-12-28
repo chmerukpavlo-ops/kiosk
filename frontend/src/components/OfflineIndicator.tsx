@@ -20,7 +20,7 @@ export function OfflineIndicator() {
 
     const handleOffline = () => {
       setOnline(false);
-      toast.warning('Немає інтернет-з\'єднання. Дані зберігаються локально.');
+      toast.info('Немає інтернет-з\'єднання. Дані зберігаються локально.');
     };
 
     window.addEventListener('online', handleOnline);
