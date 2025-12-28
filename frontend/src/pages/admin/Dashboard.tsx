@@ -499,9 +499,39 @@ export function AdminDashboard() {
 
       {/* Chart */}
       {data.chart && data.chart.length > 0 && (
-        <div className="card">
+        <div className="card" ref={mainChartRef}>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
             <h2 className="text-lg font-semibold">Фінансова динаміка</h2>
+            <div className="flex gap-2">
+              <button
+                onClick={async () => {
+                  try {
+                    await exportChartAsPNG(mainChartRef.current, 'sales_chart');
+                    toast.success('Графік експортовано як PNG');
+                  } catch (error: any) {
+                    toast.error(error.message || 'Помилка експорту');
+                  }
+                }}
+                className="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                title="Експорт як PNG"
+              >
+                📷 PNG
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await exportChartAsPDF(mainChartRef.current, 'sales_chart', 'Фінансова динаміка');
+                    toast.success('Графік експортовано як PDF');
+                  } catch (error: any) {
+                    toast.error(error.message || 'Помилка експорту');
+                  }
+                }}
+                className="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                title="Експорт як PDF"
+              >
+                📄 PDF
+              </button>
+            </div>
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setChartPeriod('7')}
@@ -603,8 +633,24 @@ export function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sales by Type Chart */}
         {data.sales_by_type && data.sales_by_type.length > 0 && (
-          <div className="card">
-            <h2 className="text-lg font-semibold mb-4">Розподіл продажів по типах товарів</h2>
+          <div className="card" ref={pieChartRef}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Розподіл продажів по типах товарів</h2>
+              <button
+                onClick={async () => {
+                  try {
+                    await exportChartAsPNG(pieChartRef.current, 'sales_by_type');
+                    toast.success('Графік експортовано');
+                  } catch (error: any) {
+                    toast.error(error.message || 'Помилка експорту');
+                  }
+                }}
+                className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded transition-colors"
+                title="Експорт"
+              >
+                📷
+              </button>
+            </div>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -645,8 +691,24 @@ export function AdminDashboard() {
 
         {/* Sales by Hour Chart */}
         {data.sales_by_hour && data.sales_by_hour.length > 0 && (
-          <div className="card">
-            <h2 className="text-lg font-semibold mb-4">Продажі по годинах дня</h2>
+          <div className="card" ref={barChartRef}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Продажі по годинах дня</h2>
+              <button
+                onClick={async () => {
+                  try {
+                    await exportChartAsPNG(barChartRef.current, 'sales_by_hour');
+                    toast.success('Графік експортовано');
+                  } catch (error: any) {
+                    toast.error(error.message || 'Помилка експорту');
+                  }
+                }}
+                className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded transition-colors"
+                title="Експорт"
+              >
+                📷
+              </button>
+            </div>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={data.sales_by_hour.map(item => ({
                 hour: `${item.hour}:00`,
