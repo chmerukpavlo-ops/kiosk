@@ -24,6 +24,7 @@ import permissionsRoutes from './routes/permissions.js';
 import gamificationRoutes from './routes/gamification.js';
 import recommendationsRoutes from './routes/recommendations.js';
 import promotionsRoutes from './routes/promotions.js';
+import analyticsRoutes from './routes/analytics.js';
 
 dotenv.config();
 
@@ -59,6 +60,7 @@ app.use('/api/permissions', permissionsRoutes);
 app.use('/api/gamification', gamificationRoutes);
 app.use('/api/recommendations', recommendationsRoutes);
 app.use('/api/promotions', promotionsRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Root endpoint - API info
 app.get('/', (req, res) => {
