@@ -498,6 +498,14 @@ export function Layout({ children }: LayoutProps) {
                   {isAdmin ? 'Адмін' : 'Продавець'}
                 </span>
               </div>
+              {/* Notification Settings */}
+              <button
+                onClick={() => setShowNotificationSettings(true)}
+                className="p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors dark:text-gray-300 dark:hover:text-gray-100 dark:hover:bg-gray-800"
+                title="Налаштування сповіщень"
+              >
+                🔔
+              </button>
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
