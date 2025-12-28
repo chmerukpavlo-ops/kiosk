@@ -714,6 +714,18 @@ export function SellerDashboard() {
                 })}
               </div>
             )}
+            
+            {/* Product Recommendations */}
+            {selectedProductForRecommendations && (
+              <ProductRecommendations
+                productId={selectedProductForRecommendations}
+                onProductSelect={(product) => {
+                  handleAddToCart(product);
+                  setSelectedProductForRecommendations(product.id);
+                }}
+                limit={6}
+              />
+            )}
           </div>
         </div>
 
