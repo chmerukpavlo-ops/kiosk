@@ -6,7 +6,7 @@ import { BarcodeScanner } from '../../components/BarcodeScanner';
 import { useAuth } from '../../context/AuthContext';
 import { SellerStats } from './SellerStats';
 import { saveSaleOffline } from '../../lib/offlineStorage';
-import { isOnline, syncPendingSales } from '../../lib/offlineSync';
+import { isOnline } from '../../lib/offlineSync';
 import { useNotifications } from '../../hooks/useNotifications';
 
 interface SellerDashboardData {
@@ -53,6 +53,7 @@ const CATEGORIES = [
 
 export function SellerDashboard() {
   const { user } = useAuth();
+  const { notify } = useNotifications();
   const [data, setData] = useState<SellerDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
