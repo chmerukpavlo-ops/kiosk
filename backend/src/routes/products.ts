@@ -154,12 +154,12 @@ router.post('/', authenticate, requireAdmin, async (req: AuthRequest, res: expre
       const result = await query(
         `INSERT INTO products (name, brand, type, price, purchase_price, quantity, kiosk_id, status, 
          discount_percent, discount_start_date, discount_end_date,
-         low_stock_threshold, target_stock_level, auto_reorder)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+         low_stock_threshold, target_stock_level, auto_reorder, image_url)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
          RETURNING *`,
         [name, brand || null, type || null, price, purchase_price || null, quantity || 0, kiosk_id, status || 'available',
          normalizedDiscountPercent, normalizedDiscountStartDate, normalizedDiscountEndDate,
-         low_stock_threshold ?? 5, target_stock_level ?? 10, auto_reorder ?? false]
+         low_stock_threshold ?? 5, target_stock_level ?? 10, auto_reorder ?? false, image_url || null]
       );
 
       const product = result.rows[0];

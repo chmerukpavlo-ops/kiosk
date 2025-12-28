@@ -638,6 +638,17 @@ export function SellerDashboard() {
                       } ${product.quantity === 0 ? 'opacity-60' : ''}`}
                       onClick={() => handleAddToCart(product)}
                     >
+                      {/* Product Image */}
+                      {product.image_url && (
+                        <div className="mb-2">
+                          <img
+                            src={product.image_url}
+                            alt={product.name}
+                            className="w-full h-32 object-cover rounded-lg"
+                          />
+                        </div>
+                      )}
+                      
                       {/* Назва та бренд */}
                       <div className="mb-2">
                         <div className="font-semibold text-sm text-gray-900 line-clamp-2 mb-1">
