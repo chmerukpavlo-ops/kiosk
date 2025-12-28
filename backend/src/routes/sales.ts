@@ -252,6 +252,42 @@ router.post('/', authenticate, async (req: AuthRequest, res: express.Response) =
         [saleResult.rows[0].id]
       );
 
+      // Send Telegram notification
+      try {
+        const userResult = await query('SELECT telegram_chat_id FROM users WHERE id = $1', [seller_id]);
+        const chatId = userResult.rows[0]?.telegram_chat_id;
+        
+        if (chatId) {
+          await sendSaleNotification(chatId, {
+            product_name: fullSaleResult.rows[0]?.product_name || product.name,
+            quantity: quantityNum,
+            price: totalPrice,
+            seller_name: fullSaleResult.rows[0]?.seller_name,
+            kiosk_name: fullSaleResult.rows[0]?.kiosk_name,
+          });
+        }
+
+        // Also notify admin
+        const adminResult = await query(
+          'SELECT telegram_chat_id FROM users WHERE role = $1 AND telegram_chat_id IS NOT NULL',
+          ['admin']
+        );
+        
+        for (const admin of adminResult.rows) {
+          if (admin.telegram_chat_id && admin.telegram_chat_id !== chatId) {
+            await sendSaleNotification(admin.telegram_chat_id, {
+              product_name: fullSaleResult.rows[0]?.product_name || product.name,
+              quantity: quantityNum,
+              price: totalPrice,
+              seller_name: fullSaleResult.rows[0]?.seller_name,
+              kiosk_name: fullSaleResult.rows[0]?.kiosk_name,
+            });
+          }
+        }
+      } catch (e) {
+        console.error('Failed to send Telegram notification:', e);
+      }
+
       res.status(201).json(fullSaleResult.rows[0]);
     } catch (error) {
       await query('ROLLBACK');
