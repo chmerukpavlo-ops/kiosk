@@ -5,6 +5,7 @@ import { useTheme } from '../context/ThemeContext';
 import api from '../lib/api';
 import { toast } from './Toast';
 import { OfflineIndicator } from './OfflineIndicator';
+import { NotificationSettings } from './NotificationSettings';
 import { initOfflineStorage } from '../lib/offlineStorage';
 import { startAutoSync } from '../lib/offlineSync';
 
