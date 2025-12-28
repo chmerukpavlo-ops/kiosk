@@ -24,7 +24,6 @@ import permissionsRoutes from './routes/permissions.js';
 import gamificationRoutes from './routes/gamification.js';
 import recommendationsRoutes from './routes/recommendations.js';
 import promotionsRoutes from './routes/promotions.js';
-import { initTelegramBot } from './services/telegram.js';
 
 dotenv.config();
 
@@ -62,7 +61,6 @@ app.use('/api/recommendations', recommendationsRoutes);
 app.use('/api/promotions', promotionsRoutes);
 app.use('/api/telegram', telegramRoutes);
 
-app.get('/', (req, res) => {
   res.json({
     message: 'Kiosk Management API',
     version: '1.0.0',
