@@ -113,11 +113,14 @@ export async function getPendingSales(): Promise<PendingSale[]> {
 // Remove sale from offline storage after successful sync
 export async function removePendingSale(id: string): Promise<void> {
   if (!db) {
+    await initOfflineStorage();
+  }
+  if (!db) {
     return;
   }
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], 'readwrite');
+    const transaction = db!.transaction([STORE_NAME], 'readwrite');
     const store = transaction.objectStore(STORE_NAME);
     const request = store.delete(id);
 
@@ -135,11 +138,14 @@ export async function removePendingSale(id: string): Promise<void> {
 // Update retry count for failed sync
 export async function updateRetryCount(id: string, retryCount: number): Promise<void> {
   if (!db) {
+    await initOfflineStorage();
+  }
+  if (!db) {
     return;
   }
 
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], 'readwrite');
+    const transaction = db!.transaction([STORE_NAME], 'readwrite');
     const store = transaction.objectStore(STORE_NAME);
     const getRequest = store.get(id);
 
