@@ -24,7 +24,6 @@ import permissionsRoutes from './routes/permissions.js';
 import gamificationRoutes from './routes/gamification.js';
 import recommendationsRoutes from './routes/recommendations.js';
 import promotionsRoutes from './routes/promotions.js';
-import analyticsRoutes from './routes/analytics.js';
 import telegramRoutes from './routes/telegram.js';
 import { initTelegramBot } from './services/telegram.js';
 
@@ -62,7 +61,6 @@ app.use('/api/permissions', permissionsRoutes);
 app.use('/api/gamification', gamificationRoutes);
 app.use('/api/recommendations', recommendationsRoutes);
 app.use('/api/promotions', promotionsRoutes);
-app.use('/api/analytics', analyticsRoutes);
 app.use('/api/telegram', telegramRoutes);
 
 // Root endpoint - API info
@@ -91,6 +89,9 @@ app.get('/', (req, res) => {
       reminders: '/api/reminders',
       permissions: '/api/permissions',
       gamification: '/api/gamification',
+      recommendations: '/api/recommendations',
+      promotions: '/api/promotions',
+      telegram: '/api/telegram',
     },
     frontend: 'http://localhost:5173',
     docs: 'See README.md for API documentation',
@@ -120,4 +121,3 @@ initDatabase()
     console.error('Failed to initialize database:', error);
     process.exit(1);
   });
-
