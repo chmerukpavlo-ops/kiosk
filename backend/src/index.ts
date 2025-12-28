@@ -20,6 +20,7 @@ import automationRoutes from './routes/automation.js';
 import remindersRoutes from './routes/reminders.js';
 import permissionsRoutes from './routes/permissions.js';
 import gamificationRoutes from './routes/gamification.js';
+import recommendationsRoutes from './routes/recommendations.js';
 
 dotenv.config();
 
@@ -52,6 +53,7 @@ app.use('/api/automation', automationRoutes);
 app.use('/api/reminders', remindersRoutes);
 app.use('/api/permissions', permissionsRoutes);
 app.use('/api/gamification', gamificationRoutes);
+app.use('/api/recommendations', recommendationsRoutes);
 
 // Root endpoint - API info
 app.get('/', (req, res) => {

@@ -8,6 +8,7 @@ import { SellerStats } from './SellerStats';
 import { saveSaleOffline } from '../../lib/offlineStorage';
 import { isOnline } from '../../lib/offlineSync';
 import { useNotifications } from '../../hooks/useNotifications';
+import { ProductRecommendations } from '../../components/ProductRecommendations';
 
 interface SellerDashboardData {
   cards: {
