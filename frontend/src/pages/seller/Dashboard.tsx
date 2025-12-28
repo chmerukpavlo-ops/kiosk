@@ -179,6 +179,9 @@ export function SellerDashboard() {
     // Анімація натискання
     setClickedProductId(product.id);
     setTimeout(() => setClickedProductId(null), 200);
+    
+    // Set selected product for recommendations
+    setSelectedProductForRecommendations(product.id);
   };
 
   const handleRemoveFromCart = (productId: number) => {
