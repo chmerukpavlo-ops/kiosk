@@ -1098,6 +1098,16 @@ export function Products() {
                   <option value="out_of_stock">Немає в наявності</option>
                 </select>
               </div>
+
+              {/* Image Upload */}
+              <div>
+                <ImageUpload
+                  currentImage={productImage || editingProduct?.image_url || null}
+                  onImageChange={setProductImage}
+                  aspectRatio={1}
+                  maxSizeMB={5}
+                />
+              </div>
               
               {/* Discount Section */}
               <div className="border-t pt-4 mt-4">
