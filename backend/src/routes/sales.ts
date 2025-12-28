@@ -178,6 +178,40 @@ router.post('/', authenticate, async (req: AuthRequest, res: express.Response) =
 
       await query('COMMIT');
 
+      // Broadcast WebSocket events
+      const saleData = {
+        id: saleResult.rows[0].id,
+        product_id: product.id,
+        product_name: product.name,
+        seller_id: seller_id,
+        kiosk_id: kiosk_id,
+        quantity: quantityNum,
+        price: totalPrice,
+        created_at: saleResult.rows[0].created_at,
+      };
+      
+      broadcastSaleCreated(saleData);
+      
+      // Broadcast stats update
+      try {
+        const statsResult = await query(
+          `SELECT 
+            COALESCE(SUM(price), 0) as revenue_today,
+            COUNT(*) as sales_today
+          FROM sales 
+          WHERE DATE(created_at) = CURRENT_DATE`
+        );
+        
+        if (statsResult.rows.length > 0) {
+          broadcastStatsUpdate({
+            revenue_today: parseFloat(statsResult.rows[0].revenue_today || '0'),
+            sales_today: parseInt(statsResult.rows[0].sales_today || '0'),
+          });
+        }
+      } catch (e) {
+        console.error('Failed to broadcast stats update:', e);
+      }
+
       // Update customer stats if customer_id provided
       if (customer_id) {
         try {
