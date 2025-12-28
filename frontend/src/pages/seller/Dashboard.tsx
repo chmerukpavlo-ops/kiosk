@@ -6,7 +6,8 @@ import { BarcodeScanner } from '../../components/BarcodeScanner';
 import { useAuth } from '../../context/AuthContext';
 import { SellerStats } from './SellerStats';
 import { saveSaleOffline } from '../../lib/offlineStorage';
-import { isOnline } from '../../lib/offlineSync';
+import { isOnline, syncPendingSales } from '../../lib/offlineSync';
+import { useNotifications } from '../../hooks/useNotifications';
 
 interface SellerDashboardData {
   cards: {
@@ -273,7 +274,17 @@ export function SellerDashboard() {
       
       if (online && allSalesSuccessful) {
         await loadData(true);
-        toast.success(`Успішно продано ${receiptItems.reduce((sum, item) => sum + item.quantity, 0)} товарів!`);
+        const totalQuantity = receiptItems.reduce((sum, item) => sum + item.quantity, 0);
+        toast.success(`Успішно продано ${totalQuantity} товарів!`);
+        
+        // Show notification for each sale
+        for (const item of receiptItems) {
+          await notify.newSale(
+            item.name,
+            item.quantity,
+            item.total
+          );
+        }
       } else {
         toast.success(
           `Продаж збережено локально (${receiptItems.reduce((sum, item) => sum + item.quantity, 0)} товарів). ` +

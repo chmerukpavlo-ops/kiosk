@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 import { format } from 'date-fns';
 import { uk } from 'date-fns/locale';
+import { useScheduleNotifications } from '../../hooks/useScheduleNotifications';
 
 interface ScheduleEntry {
   id: number;
@@ -26,6 +27,7 @@ type TabType = 'schedule' | 'revenue' | 'salary';
 
 export function SellerStats() {
   const { user } = useAuth();
+  useScheduleNotifications(); // Track schedule changes
   const [activeTab, setActiveTab] = useState<TabType>('schedule');
   const [loading, setLoading] = useState(true);
   const [schedule, setSchedule] = useState<ScheduleEntry[]>([]);

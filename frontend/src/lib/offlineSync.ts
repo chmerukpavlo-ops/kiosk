@@ -2,6 +2,7 @@
 import api from './api';
 import { getPendingSales, removePendingSale, updateRetryCount } from './offlineStorage';
 import { toast } from '../components/Toast';
+import { showNotification, notifications } from './notifications';
 
 const MAX_RETRY_COUNT = 3;
 const SYNC_INTERVAL = 5000; // Sync every 5 seconds when online
@@ -66,6 +67,8 @@ export async function syncPendingSales(): Promise<{ success: number; failed: num
 
     if (successCount > 0) {
       toast.success(`Синхронізовано ${successCount} продажів`);
+      // Show notification about sync completion
+      await showNotification(notifications.syncComplete(successCount));
     }
 
     if (failedCount > 0 && successCount === 0) {
