@@ -240,6 +240,7 @@ export function Layout({ children }: LayoutProps) {
         { path: '/sales', label: 'Продажі', icon: '💰' },
         { path: '/promotions', label: 'Акції', icon: '🏷️' },
         { path: '/analytics', label: 'Аналітика', icon: '📊' },
+        { path: '/telegram', label: 'Telegram', icon: '📱' },
         { path: '/expenses', label: 'Фінанси', icon: '💳' },
         {
           label: 'Персонал',

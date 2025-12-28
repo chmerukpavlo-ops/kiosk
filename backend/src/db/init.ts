@@ -32,8 +32,22 @@ export async function initDatabase() {
         full_name VARCHAR(255) NOT NULL,
         role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'seller', 'manager', 'accountant')),
         kiosk_id INTEGER REFERENCES kiosks(id) ON DELETE SET NULL,
+        telegram_chat_id VARCHAR(100),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+    `);
+
+    // Add telegram_chat_id column if it doesn't exist
+    await query(`
+      DO $$ 
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'users' AND column_name = 'telegram_chat_id'
+        ) THEN
+          ALTER TABLE users ADD COLUMN telegram_chat_id VARCHAR(100);
+        END IF;
+      END $$;
     `);
 
     await query(`

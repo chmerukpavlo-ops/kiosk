@@ -25,6 +25,8 @@ import gamificationRoutes from './routes/gamification.js';
 import recommendationsRoutes from './routes/recommendations.js';
 import promotionsRoutes from './routes/promotions.js';
 import analyticsRoutes from './routes/analytics.js';
+import telegramRoutes from './routes/telegram.js';
+import { initTelegramBot } from './services/telegram.js';
 
 dotenv.config();
 
@@ -61,6 +63,7 @@ app.use('/api/gamification', gamificationRoutes);
 app.use('/api/recommendations', recommendationsRoutes);
 app.use('/api/promotions', promotionsRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/telegram', telegramRoutes);
 
 // Root endpoint - API info
 app.get('/', (req, res) => {
@@ -104,6 +107,9 @@ initDatabase()
   .then(() => {
     // Initialize WebSocket
     initWebSocket(server);
+    
+    // Initialize Telegram bot
+    initTelegramBot();
     
     server.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
