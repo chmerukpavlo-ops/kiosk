@@ -1,128 +1,258 @@
-# Система обліку для мережі кіосків
+# 🏪 Kiosk Management System
 
-Система управління для мережі кіосків з одноразками та нікотиновими рідинами.
+Система управління кіосками з повним функціоналом для продавців та адміністраторів.
 
-## Технології
+## ✨ Основні функції
 
-- **Backend**: Node.js + Express + TypeScript
-- **Frontend**: React + TypeScript + Vite
-- **База даних**: PostgreSQL
-- **Стилізація**: Tailwind CSS
-- **Графіки**: Recharts
+### Для продавців
+- 📱 Панель продавця з швидким доступом до товарів
+- 📷 Сканування штрих-кодів та QR-кодів
+- 🛒 Кошик з можливістю додавання товарів
+- 💰 Продаж товарів з вибором методу оплати
+- 📊 Статистика продажів та зарплата
+- 📅 Графік роботи
+- 🏆 Гейміфікація (досягнення, бейджі, лідерборд)
+- 📱 Офлайн-режим з автоматичною синхронізацією
+- 🔔 Push-нотифікації
 
-## Функціонал
+### Для адміністраторів
+- 📊 Дашборд з аналітикою та прогнозами
+- 📦 Управління товарами (CRUD, імпорт/експорт)
+- 💰 Управління продажами
+- 🏷️ Система акцій та знижок
+- 👥 Управління персоналом та клієнтами
+- 📅 Управління графіком роботи
+- 💳 Управління витратами та фінансами
+- 📈 Аналітика та прогнози продажів
+- 📱 Telegram-бот для сповіщень
+- 📥 Експорт даних (Excel, графіки)
 
-### Ролі користувачів
+## 🚀 Швидкий старт
 
-#### Адміністратор
-- Дашборд зі статистикою та графіками
-- Управління товарами (додавання, редагування, видалення)
-- Перегляд усіх продажів з фільтрами
-- Управління ларьками
-- Управління продавцями
-- Графік роботи працівників
-- Експорт продажів у CSV
+### Вимоги
+- Node.js 18+
+- PostgreSQL 12+
+- npm або yarn
 
-#### Продавець
-- Панель продавця (мобільна версія)
-- Перегляд товарів свого ларька
-- Продаж товарів
-- Перегляд власних продажів
-- Перегляд своєї комісії (12% від продажів)
+### Встановлення
 
-## 🚀 Швидкий старт для локального тестування
-
-### Варіант 1: Автоматичний запуск (рекомендовано)
-
+1. **Клонуйте репозиторій**
 ```bash
-# macOS/Linux
-./start.sh
-
-# Windows
-start.bat
-
-# Або через npm
-npm start
+git clone <repository-url>
+cd kiosk
 ```
 
-### Варіант 2: Через npm
+2. **Встановіть залежності**
 
+Backend:
 ```bash
-# Встановити залежності (перший раз)
-npm run install:all
+cd backend
+npm install
+```
 
-# Запустити обидва сервери
+Frontend:
+```bash
+cd frontend
+npm install
+```
+
+3. **Налаштуйте базу даних**
+
+Створіть файл `backend/.env`:
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/kiosk_db
+JWT_SECRET=your-secret-key-here
+PORT=3001
+TELEGRAM_BOT_TOKEN=your-telegram-bot-token (опціонально)
+```
+
+4. **Запустіть базу даних**
+```bash
+# PostgreSQL має бути запущений
+createdb kiosk_db
+```
+
+5. **Запустіть backend**
+```bash
+cd backend
 npm run dev
 ```
 
-### Налаштування перед запуском
+Backend буде доступний на `http://localhost:3001`
 
-1. **PostgreSQL** повинен бути запущений локально
-2. **Створіть базу даних:**
-   ```sql
-   CREATE DATABASE kiosk_db;
-   ```
-3. **Створіть `.env` файл:**
-   ```bash
-   cp env.example backend/.env
-   # Відредагуйте backend/.env з вашими налаштуваннями
-   ```
-
-### Доступ після запуску
-
-- **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:3001
-- **Логін**: `admin` / `admin123`
-
-4. **Відкрийте браузер:**
-   - Frontend: http://localhost:5173
-   - Логін: `admin` / Пароль: `admin123`
-
-## Запуск
-
+6. **Запустіть frontend**
 ```bash
+cd frontend
 npm run dev
 ```
 
-Backend: http://localhost:3001  
-Frontend: http://localhost:5173
+Frontend буде доступний на `http://localhost:5173`
 
-## Тестові дані
+## 📁 Структура проекту
 
-- **Логін**: `admin`
-- **Пароль**: `admin123`
+```
+kiosk/
+├── backend/              # Backend (Express + TypeScript + PostgreSQL)
+│   ├── src/
+│   │   ├── db/          # Database initialization
+│   │   ├── routes/      # API routes
+│   │   ├── services/    # Business logic services
+│   │   ├── middleware/  # Auth, logging middleware
+│   │   └── index.ts     # Entry point
+│   └── package.json
+│
+├── frontend/            # Frontend (React + TypeScript + Vite)
+│   ├── src/
+│   │   ├── components/  # React components
+│   │   ├── pages/      # Page components
+│   │   ├── lib/        # Utilities
+│   │   ├── hooks/      # Custom hooks
+│   │   ├── context/    # React context
+│   │   └── main.tsx    # Entry point
+│   └── package.json
+│
+└── README.md
+```
 
-## Деплой на сервер
+## 🔐 Авторизація
 
-Безкоштовний деплой без налаштування серверів:
-- Backend + База даних → Render.com (безкоштовно) - використайте `render.yaml`
-- Frontend → Vercel.com (безкоштовно) - використайте `vercel.json`
+Після першого запуску створюється адміністратор:
+- **Username:** `admin`
+- **Password:** `admin123`
 
-**Детальна інструкція:** Дивіться [DEPLOY.md](./DEPLOY.md)
+⚠️ **Важливо:** Змініть пароль після першого входу!
 
-### Швидкий старт деплою:
+## 🌐 API Endpoints
 
-1. **Backend на Render.com:**
-   - Створіть Web Service з `render.yaml`
-   - Створіть PostgreSQL базу даних
-   - Встановіть Environment Variables (JWT_SECRET, DATABASE_URL)
+### Авторизація
+- `POST /api/auth/login` - Вхід
+- `POST /api/auth/register` - Реєстрація (admin only)
+- `GET /api/auth/me` - Поточний користувач
 
-2. **Frontend на Vercel.com:**
-   - Імпортуйте проект з GitHub
-   - ⚠️ **ВАЖЛИВО:** Встановіть **Root Directory: `frontend`** в налаштуваннях проекту
-   - Встановіть `VITE_API_URL` = URL вашого backend (без `/api` в кінці)
-   - Після встановлення Root Directory, всі команди будуть виконуватися з папки `frontend` автоматично
+### Товари
+- `GET /api/products` - Список товарів
+- `POST /api/products` - Створити товар (admin)
+- `PUT /api/products/:id` - Оновити товар (admin)
+- `DELETE /api/products/:id` - Видалити товар (admin)
 
-3. **Тестування PWA:**
-   - Відкрийте frontend URL на телефоні
-   - Встановіть додаток на домашній екран
-   - Готово! 🎉
+### Продажі
+- `GET /api/sales` - Список продажів
+- `POST /api/sales` - Створити продаж
 
-## Структура проєкту
+### Статистика
+- `GET /api/stats/dashboard` - Дашборд статистика (admin)
+- `GET /api/analytics/trends` - Тренди продажів (admin)
+- `GET /api/analytics/forecast` - Прогнози (admin)
 
-- `backend/` - Backend API (Express + TypeScript)
-- `frontend/` - Frontend додаток (React + TypeScript + Vite)
-- `start.sh` / `start.bat` - Скрипти для швидкого запуску
-- `render.yaml` - Конфігурація для деплою на Render.com
-- `vercel.json` - Конфігурація для деплою на Vercel.com
+### Telegram
+- `GET /api/telegram/chat-id` - Отримати Chat ID
+- `POST /api/telegram/link` - Підключити Telegram
+- `POST /api/telegram/unlink` - Відключити Telegram
 
+Повний список API endpoints дивіться в коді або використовуйте `GET /` для інформації.
+
+## 🔧 Налаштування
+
+### Environment Variables
+
+**Backend (.env):**
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/kiosk_db
+JWT_SECRET=your-secret-key-change-this
+PORT=3001
+TELEGRAM_BOT_TOKEN=your-bot-token (опціонально)
+NODE_ENV=development
+```
+
+**Frontend (.env):**
+```env
+VITE_API_URL=http://localhost:3001/api (для production)
+```
+
+### Telegram Bot Setup
+
+1. Створіть бота через [@BotFather](https://t.me/BotFather) в Telegram
+2. Отримайте токен бота
+3. Додайте `TELEGRAM_BOT_TOKEN` в `backend/.env`
+4. Отримайте ваш Chat ID через [@userinfobot](https://t.me/userinfobot)
+5. Підключіть Telegram в налаштуваннях системи
+
+## 📱 PWA Features
+
+Система підтримує PWA (Progressive Web App):
+- 📥 Встановлення на телефон
+- 🔄 Офлайн-режим
+- 🔔 Push-нотифікації
+- 💾 Локальне збереження даних
+
+## 🚢 Deployment
+
+### Backend (Render.com)
+
+1. Створіть новий Web Service на Render
+2. Підключіть GitHub репозиторій
+3. Налаштуйте:
+   - **Root Directory:** `backend`
+   - **Build Command:** `npm install && npm run build`
+   - **Start Command:** `npm start`
+4. Додайте Environment Variables:
+   - `DATABASE_URL` (PostgreSQL connection string)
+   - `JWT_SECRET`
+   - `TELEGRAM_BOT_TOKEN` (опціонально)
+   - `NODE_ENV=production`
+
+### Frontend (Vercel)
+
+1. Підключіть GitHub репозиторій до Vercel
+2. Налаштуйте:
+   - **Root Directory:** `frontend`
+   - **Build Command:** `npm install && npm run build`
+   - **Output Directory:** `dist`
+3. Додайте Environment Variable:
+   - `VITE_API_URL` (URL вашого backend API)
+
+## 🛠️ Розробка
+
+### Backend
+```bash
+cd backend
+npm run dev    # Development mode з hot reload
+npm run build  # Build для production
+npm start      # Production mode
+```
+
+### Frontend
+```bash
+cd frontend
+npm run dev    # Development server
+npm run build  # Build для production
+npm run preview # Preview production build
+```
+
+## 📝 Технології
+
+### Backend
+- Express.js
+- TypeScript
+- PostgreSQL
+- Socket.IO (WebSocket)
+- node-telegram-bot-api
+- JWT для авторизації
+
+### Frontend
+- React 18
+- TypeScript
+- Vite
+- Tailwind CSS
+- Recharts (графіки)
+- React Router
+- Axios
+- Socket.IO Client
+
+## 📄 Ліцензія
+
+MIT
+
+## 👥 Автор
+
+Розроблено для управління кіосками
