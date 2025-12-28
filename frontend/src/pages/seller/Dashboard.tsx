@@ -795,8 +795,14 @@ export function SellerDashboard() {
                 const stockStatus = getStockStatus(product?.quantity || 0);
 
                 return (
-                  <div key={item.product_id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div className="font-medium text-sm mb-1">{item.name}</div>
+                  <SwipeableItem
+                    key={item.product_id}
+                    onSwipeLeft={() => handleRemoveFromCart(item.product_id)}
+                    leftAction={<span className="text-white font-medium">Видалити</span>}
+                    threshold={80}
+                  >
+                    <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                      <div className="font-medium text-sm mb-1">{item.name}</div>
                     <div className="text-xs text-gray-600 mb-2">
                       {parseFloat(String(item.price || 0)).toFixed(2)} ₴ × {item.quantity}
                     </div>
