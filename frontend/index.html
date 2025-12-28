@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Система управління та обліку для кіосків" />
+    <meta name="theme-color" content="#3b82f6" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/icon.svg" />
+    <title>Система обліку кіосків</title>
+    <script>
+      // Apply theme before React loads to prevent flash
+      (function() {
+        const theme = localStorage.getItem('theme') || 'light';
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+      
+      // Ignore browser extension errors
+      window.addEventListener('error', function(e) {
+        if (e.message && (
+          e.message.includes('chrome-extension') ||
+          e.message.includes('moz-extension') ||
+          e.message.includes('safari-extension')
+        )) {
+          e.preventDefault();
+          return true;
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

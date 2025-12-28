@@ -1,12 +1,12 @@
 # 🚀 Інструкції по деплою
 
-## Автоматичний деплой
+## ⚠️ ВАЖЛИВО: Автоматичний деплой
 
-Після push на GitHub, сервери автоматично підтягнуть зміни, **АЛЕ** потрібно налаштувати environment variables вручну.
+**Так, після push на GitHub все автоматично підтягнеться на сервери**, АЛЕ потрібно **один раз налаштувати** environment variables вручну.
 
 ## Backend (Render.com)
 
-### Налаштування
+### Перше налаштування (один раз)
 
 1. **Підключіть GitHub репозиторій** до Render
 2. **Створіть Web Service** з наступними налаштуваннями:
@@ -15,20 +15,20 @@
    - **Start Command:** `npm start`
    - **Environment:** `Node`
 
-3. **Додайте Environment Variables:**
+3. **Створіть PostgreSQL Database** на Render (назвіть `kiosk-db`)
+
+4. **Додайте Environment Variables вручну:**
    ```
-   DATABASE_URL=postgresql://user:password@host:5432/dbname
-   JWT_SECRET=your-secret-key-min-32-chars
+   DATABASE_URL= (автоматично з database)
+   JWT_SECRET=your-secret-key-min-32-chars (встановіть вручну!)
    NODE_ENV=production
    PORT=10000
    TELEGRAM_BOT_TOKEN=your-bot-token (опціонально)
    ```
 
-4. **Створіть PostgreSQL Database** на Render та скопіюйте `DATABASE_URL`
-
 ### Автоматичний деплой
 
-✅ Після push на `main` гілку, Render автоматично:
+✅ **Після push на `main` гілку, Render автоматично:**
 - Запустить build
 - Перезапустить сервіс
 - Застосує нові зміни
@@ -37,7 +37,7 @@
 
 ## Frontend (Vercel)
 
-### Налаштування
+### Перше налаштування (один раз)
 
 1. **Підключіть GitHub репозиторій** до Vercel
 2. **Налаштуйте проект:**
@@ -46,7 +46,7 @@
    - **Build Command:** `npm install && npm run build`
    - **Output Directory:** `dist`
 
-3. **Додайте Environment Variable:**
+3. **Додайте Environment Variable вручну:**
    ```
    VITE_API_URL=https://your-backend-url.onrender.com/api
    ```
@@ -54,28 +54,27 @@
 
 ### Автоматичний деплой
 
-✅ Після push на `main` гілку, Vercel автоматично:
+✅ **Після push на `main` гілку, Vercel автоматично:**
 - Запустить build
 - Задеплоїть нову версію
 - Застосує нові зміни
 
-## Ручний деплой (якщо потрібно)
+## 📝 Що робити після push
 
-### Backend
+### Просто запушити:
 ```bash
-cd backend
-npm install
-npm run build
-# На Render це відбувається автоматично
+git add .
+git commit -m "Your changes"
+git push origin main
 ```
 
-### Frontend
-```bash
-cd frontend
-npm install
-npm run build
-# На Vercel це відбувається автоматично
-```
+### Сервери автоматично:
+1. ✅ Відловлять зміни з GitHub
+2. ✅ Запустять build
+3. ✅ Задеплоять нову версію
+4. ✅ Перезапустять сервіси
+
+**Нічого більше робити не потрібно!** 🎉
 
 ## Перевірка після деплою
 
@@ -100,6 +99,7 @@ npm run build
 
 ### Backend не запускається
 - Перевірте `DATABASE_URL` - має бути правильний connection string
+- Перевірте `JWT_SECRET` - має бути встановлений (мінімум 32 символи)
 - Перевірте логи на Render - там будуть детальні помилки
 - Переконайтеся, що PostgreSQL database створена та доступна
 
@@ -112,7 +112,18 @@ npm run build
 - Backend налаштований на `origin: '*'` - має працювати
 - Якщо все одно є помилки, перевірте CORS налаштування в `backend/src/index.ts`
 
-## Оновлення
+## 📋 Чеклист перед першим деплоєм
+
+- [ ] Backend налаштований на Render
+- [ ] PostgreSQL database створена
+- [ ] Environment variables встановлені (JWT_SECRET, DATABASE_URL)
+- [ ] Frontend налаштований на Vercel
+- [ ] VITE_API_URL встановлений на Vercel
+- [ ] Проект запушено на GitHub
+- [ ] Перевірено health check backend
+- [ ] Перевірено frontend в браузері
+
+## Оновлення проекту
 
 Просто зробіть:
 ```bash
@@ -122,4 +133,3 @@ git push origin main
 ```
 
 І сервери автоматично оновляться! 🎉
-
