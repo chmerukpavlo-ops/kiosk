@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import api from '../lib/api';
 import { toast } from './Toast';
+import { OfflineIndicator } from './OfflineIndicator';
 
 interface LayoutProps {
   children: ReactNode;
@@ -655,6 +656,9 @@ export function Layout({ children }: LayoutProps) {
       <main className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 page-enter">
         {children}
       </main>
+      
+      {/* Offline Indicator */}
+      <OfflineIndicator />
     </div>
   );
 }

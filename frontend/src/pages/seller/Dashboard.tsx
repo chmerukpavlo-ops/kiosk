@@ -5,6 +5,8 @@ import { Receipt } from '../../components/Receipt';
 import { BarcodeScanner } from '../../components/BarcodeScanner';
 import { useAuth } from '../../context/AuthContext';
 import { SellerStats } from './SellerStats';
+import { saveSaleOffline, initOfflineStorage } from '../../lib/offlineStorage';
+import { isOnline, startAutoSync } from '../../lib/offlineSync';
 
 interface SellerDashboardData {
   cards: {
@@ -202,15 +204,48 @@ export function SellerDashboard() {
 
     setSelling(true);
     setShowPaymentModal(false);
+    
+    let online = isOnline();
+    const saleIds: number[] = [];
+    let allSalesSuccessful = true;
+
     try {
-      const salePromises = cart.map((item) =>
-        api.post('/sales', { 
-          product_id: item.product_id, 
-          quantity: item.quantity,
-          customer_id: selectedCustomerId || undefined
-        })
-      );
-      const saleResults = await Promise.all(salePromises);
+      if (online) {
+        // Try to sync online first
+        try {
+          const salePromises = cart.map((item) =>
+            api.post('/sales', { 
+              product_id: item.product_id, 
+              quantity: item.quantity,
+              customer_id: selectedCustomerId || undefined
+            })
+          );
+          const saleResults = await Promise.all(salePromises);
+          saleIds.push(...saleResults.map((res: any) => res.data.id).filter(Boolean));
+        } catch (error: any) {
+          // If online sync fails, fall back to offline storage
+          console.warn('Online sync failed, saving offline:', error);
+          allSalesSuccessful = false;
+          online = false; // Treat as offline for saving
+        }
+      }
+
+      // Save to offline storage if offline or online sync failed
+      if (!online || !allSalesSuccessful) {
+        for (const item of cart) {
+          try {
+            await saveSaleOffline({
+              product_id: item.product_id,
+              quantity: item.quantity,
+              customer_id: selectedCustomerId || undefined,
+              payment_method: paymentMethod,
+            });
+          } catch (error) {
+            console.error('Failed to save sale offline:', error);
+            toast.error('Помилка збереження продажу офлайн');
+          }
+        }
+      }
       
       // Prepare receipt data
       const receiptItems = cart.map((item) => ({
@@ -225,8 +260,6 @@ export function SellerDashboard() {
         0
       );
       
-      const saleIds = saleResults.map((res: any) => res.data.id).filter(Boolean);
-      
       setReceiptData({
         items: receiptItems,
         total: receiptTotal,
@@ -237,8 +270,16 @@ export function SellerDashboard() {
       setShowReceipt(true);
       setCart([]);
       setSelectedCustomerId(null); // Reset customer after sale
-      await loadData(true);
-      toast.success(`Успішно продано ${receiptItems.reduce((sum, item) => sum + item.quantity, 0)} товарів!`);
+      
+      if (online && allSalesSuccessful) {
+        await loadData(true);
+        toast.success(`Успішно продано ${receiptItems.reduce((sum, item) => sum + item.quantity, 0)} товарів!`);
+      } else {
+        toast.success(
+          `Продаж збережено локально (${receiptItems.reduce((sum, item) => sum + item.quantity, 0)} товарів). ` +
+          `Буде синхронізовано після відновлення інтернету.`
+        );
+      }
     } catch (error: any) {
       toast.error(error.response?.data?.error || 'Помилка продажу товарів');
     } finally {
